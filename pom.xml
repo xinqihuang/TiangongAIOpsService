@@ -130,6 +130,11 @@
                 <artifactId>huaweicloud-sdk-kms</artifactId>
                 <version>${huaweicloud-sdk.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-ces</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
 
             <!-- Resilience4j BOM -->
             <dependency>

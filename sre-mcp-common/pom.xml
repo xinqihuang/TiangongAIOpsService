@@ -135,6 +135,10 @@
             <groupId>com.huaweicloud.sdk</groupId>
             <artifactId>huaweicloud-sdk-kms</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.sdk</groupId>
+            <artifactId>huaweicloud-sdk-ces</artifactId>
+        </dependency>
 
         <!-- Test -->
         <dependency>

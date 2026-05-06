@@ -10,11 +10,13 @@ import com.huawei.cloud.sre.monitor.dto.AnomalyResult;
 import com.huawei.cloud.sre.monitor.dto.BaselineStatus;
 import com.huawei.cloud.sre.monitor.dto.CapacityForecast;
 import com.huawei.cloud.sre.monitor.dto.EmergencyPlan;
+import com.huawei.cloud.sre.monitor.dto.MemoryAlert;
 import com.huawei.cloud.sre.monitor.dto.NotificationResult;
 import com.huawei.cloud.sre.monitor.kafka.MonitorEvent;
 import com.huawei.cloud.sre.monitor.kafka.MonitorEventProducer;
 import com.huawei.cloud.sre.monitor.repository.AlertRuleEntity;
 import com.huawei.cloud.sre.monitor.repository.AlertRuleRepository;
+import com.huawei.cloud.sre.monitor.scheduler.MemoryMonitorScheduler;
 import com.huawei.cloud.sre.monitor.service.AlertAggregator;
 import com.huawei.cloud.sre.monitor.service.BaselineEngine;
 import com.huawei.cloud.sre.monitor.service.EmergencyPlanService;
@@ -50,15 +52,17 @@ public class MonitorToolService {
     private final AlertRuleRepository alertRuleRepository;
     private final MonitorEventProducer eventProducer;
     private final EmergencyPlanService emergencyPlanService;
+    private final MemoryMonitorScheduler memoryMonitorScheduler;
 
     /**
-     * @param baselineEngine       动态基线引擎
-     * @param alertAggregator      告警聚合服务
-     * @param aomAdapter           华为云 AOM 适配器
-     * @param smnAdapter           华为云 SMN 适配器
-     * @param alertRuleRepository  告警规则仓库
-     * @param eventProducer        Kafka 事件生产者
-     * @param emergencyPlanService 应急预案 RAG 服务
+     * @param baselineEngine          动态基线引擎
+     * @param alertAggregator         告警聚合服务
+     * @param aomAdapter              华为云 AOM 适配器
+     * @param smnAdapter              华为云 SMN 适配器
+     * @param alertRuleRepository     告警规则仓库
+     * @param eventProducer           Kafka 事件生产者
+     * @param emergencyPlanService    应急预案 RAG 服务
+     * @param memoryMonitorScheduler  内存巡检定时任务
      */
     public MonitorToolService(
             BaselineEngine baselineEngine,
@@ -67,7 +71,8 @@ public class MonitorToolService {
             SmnAdapter smnAdapter,
             AlertRuleRepository alertRuleRepository,
             MonitorEventProducer eventProducer,
-            EmergencyPlanService emergencyPlanService
+            EmergencyPlanService emergencyPlanService,
+            MemoryMonitorScheduler memoryMonitorScheduler
     ) {
         this.baselineEngine = baselineEngine;
         this.alertAggregator = alertAggregator;
@@ -76,6 +81,7 @@ public class MonitorToolService {
         this.alertRuleRepository = alertRuleRepository;
         this.eventProducer = eventProducer;
         this.emergencyPlanService = emergencyPlanService;
+        this.memoryMonitorScheduler = memoryMonitorScheduler;
     }
 
     /**
@@ -434,6 +440,31 @@ public class MonitorToolService {
             log.error("Tool[indexEmergencyPlan] failed planId={}: {}", planId, e.getMessage());
             return Map.of("status", "failed", "planId", planId, "error", e.getMessage());
         }
+    }
+
+    /**
+     * 查询定时内存巡检任务检测到的高内存实例列表（内存使用率超过阈值的 ECS/RDS/DCS/CCE 实例）。
+     * 数据来自后台 5 分钟定时任务，每条记录含实例 ID、内存百分比、处置结果。
+     *
+     * @param componentType 按组件类型过滤：ECS / RDS / DCS / CCE，传 "ALL" 返回全部
+     * @param limit         最多返回条数（1-200，默认 20）
+     * @return 高内存实例告警列表（最新在前）
+     */
+    @Tool(description = "查询内存使用率超过阈值的实例列表（ECS/RDS/DCS/CCE），数据来自5分钟定时CES巡检，含处置建议")
+    public List<MemoryAlert> getMemoryAlerts(
+            @ToolParam(description = "组件类型过滤：ECS / RDS / DCS / CCE，传 \"ALL\" 返回全部") String componentType,
+            @ToolParam(description = "最多返回条数（1-200，默认20）") int limit
+    ) {
+        log.info("Tool[getMemoryAlerts] componentType={} limit={}", componentType, limit);
+        int cap = Math.max(1, Math.min(limit <= 0 ? 20 : limit, 200));
+        List<MemoryAlert> all = memoryMonitorScheduler.getRecentAlerts();
+        List<MemoryAlert> result = all.stream()
+                .filter(a -> "ALL".equalsIgnoreCase(componentType) || componentType == null
+                        || a.componentType().equalsIgnoreCase(componentType))
+                .limit(cap)
+                .toList();
+        log.info("Tool[getMemoryAlerts] done returned={}", result.size());
+        return result;
     }
 
     /**

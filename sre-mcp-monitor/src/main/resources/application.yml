@@ -44,6 +44,13 @@ monitor:
     alpha: ${MONITOR_BASELINE_ALPHA:0.2}
   alert:
     window-minutes: ${MONITOR_ALERT_WINDOW_MINUTES:5}
+  memory:
+    enabled: ${MONITOR_MEMORY_ENABLED:true}
+    threshold: ${MONITOR_MEMORY_THRESHOLD:90.0}
+    check-interval-ms: ${MONITOR_MEMORY_INTERVAL_MS:300000}   # 5 minutes
+    lookback-seconds: ${MONITOR_MEMORY_LOOKBACK_SECONDS:600}  # look back 10 min for data
+    alert-dedup-minutes: ${MONITOR_MEMORY_DEDUP_MINUTES:15}   # re-alert same instance after 15 min
+    rag-threshold: ${MONITOR_MEMORY_RAG_THRESHOLD:0.65}
 
 management:
   endpoints:
