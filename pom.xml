@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.huawei.cloud.sre</groupId>
+    <artifactId>sre-mcp-platform</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>sre-mcp-platform</name>
+    <description>华为云 AI For SRE 智能运维平台 MCP Server 集群</description>
+
+    <modules>
+        <module>sre-mcp-common</module>
+        <module>sre-mcp-rca</module>
+        <module>sre-mcp-monitor</module>
+        <module>sre-mcp-remediation</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Locked versions (do not bump without team approval) -->
+        <spring-boot.version>3.3.5</spring-boot.version>
+        <spring-ai.version>1.0.0</spring-ai.version>
+        <huaweicloud-sdk.version>3.1.194</huaweicloud-sdk.version>
+        <resilience4j.version>2.2.0</resilience4j.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
+        <logstash-logback.version>7.4</logstash-logback.version>
+        <neo4j-driver.version>5.23.0</neo4j-driver.version>
+        <redisson.version>3.34.1</redisson.version>
+        <opentelemetry.version>2.8.0</opentelemetry.version>
+
+        <!-- Maven plugins -->
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.1</maven-failsafe-plugin.version>
+        <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot BOM -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring AI BOM -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!--
+              Huawei Cloud SDK
+              Note: 官方 huaweicloud-sdk-bom 仅在 3.1.152 起发布，本项目锁定的 3.1.105 没有 BOM 工件。
+              为保留版本钉死语义，这里以等价的 dependencyManagement 集中声明各 SDK 的版本。
+            -->
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-core</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-aom</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-apm</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-lts</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-cce</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-ecs</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-elb</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-rds</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-cts</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-scm</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-smn</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.sdk</groupId>
+                <artifactId>huaweicloud-sdk-kms</artifactId>
+                <version>${huaweicloud-sdk.version}</version>
+            </dependency>
+
+            <!-- Resilience4j BOM -->
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Testcontainers BOM -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Misc deps managed at parent level -->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.neo4j.driver</groupId>
+                <artifactId>neo4j-java-driver</artifactId>
+                <version>${neo4j-driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+
+            <!-- Internal modules -->
+            <dependency>
+                <groupId>com.huawei.cloud.sre</groupId>
+                <artifactId>sre-mcp-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                        <parameters>true</parameters>
+                        <compilerArgs>
+                            <arg>-Xlint:all,-processing,-serial,-options</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <argLine>@{argLine} -Xshare:off</argLine>
+                        <includes>
+                            <include>**/*Test.java</include>
+                            <include>**/*Tests.java</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/*IT.java</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+                    <configuration>
+                        <argLine>@{argLine} -Xshare:off</argLine>
+                        <includes>
+                            <include>**/*IT.java</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+</project>

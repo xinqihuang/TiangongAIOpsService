@@ -1,0 +1,19 @@
+apiVersion: v2
+name: sre-mcp-platform
+description: 华为云 AI For SRE 智能运维 MCP Server 集群（RCA + Monitor + Remediation）
+type: application
+version: 0.1.0
+appVersion: "0.1.0-SNAPSHOT"
+
+keywords:
+  - sre
+  - mcp
+  - aiops
+  - huaweicloud
+
+maintainers:
+  - name: xinxin
+    email: huangxinqi0604@gmail.com
+
+annotations:
+  category: Observability

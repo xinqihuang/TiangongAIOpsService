@@ -1,0 +1,19 @@
+{{- range $module := list "rca" "monitor" "remediation" }}
+{{- $mod := index $.Values $module }}
+{{- if and $mod.enabled (gt (int $mod.replicaCount) 1) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ printf "sre-mcp-%s" $module }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "sre-mcp.labels" $ | nindent 4 }}
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 6 }}
+{{- end }}
+{{- end }}

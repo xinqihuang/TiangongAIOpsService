@@ -1,0 +1,53 @@
+# Prod profile — deployed to Huawei Cloud CCE
+# Credentials injected via CCE Secret / KMS
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  ai:
+    openai:
+      base-url: ${VLLM_ENDPOINT}
+      api-key: ${VLLM_API_KEY}
+      chat:
+        options:
+          model: Qwen2.5-72B-Instruct
+          temperature: 0.1
+          max-tokens: 4096
+      embedding:
+        options:
+          model: Qwen2.5-72B-Instruct
+
+# Tighter Resilience4j settings for prod
+resilience4j:
+  retry:
+    instances:
+      huaweicloud-api:
+        max-attempts: 3
+        wait-duration: 2s
+      neo4j:
+        max-attempts: 2
+        wait-duration: 1s
+  circuitbreaker:
+    instances:
+      huaweicloud-api:
+        failure-rate-threshold: 40
+        wait-duration-in-open-state: 60s
+      neo4j:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+
+# Expose fewer actuator endpoints externally
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+# Production log level
+logging:
+  level:
+    com.huawei.cloud.sre: INFO
+    org.springframework.ai: WARN
+    root: WARN

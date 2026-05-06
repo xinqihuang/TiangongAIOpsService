@@ -1,0 +1,89 @@
+## Dev environment overlay — overrides values.yaml defaults
+## Intended for: local K8s (minikube/kind) or CCE dev cluster
+global:
+  namespace: sre-mcp-dev
+  springProfile: dev
+  useExternalSecrets: false
+
+  imagePullSecrets: []   # dev images pulled locally, no pull secret needed
+
+  huaweicloud:
+    region: cn-north-4
+    projectId: "dev-project-id"
+    ak: "mock-ak"
+    sk: "mock-sk"
+
+  redis:
+    host: redis.sre-mcp-dev.svc.cluster.local
+    port: "6379"
+    password: ""
+
+  postgres:
+    host: postgres.sre-mcp-dev.svc.cluster.local
+    database: sre_mcp_dev
+    username: postgres
+    password: dev
+
+  kafka:
+    bootstrapServers: kafka.sre-mcp-dev.svc.cluster.local:9092
+
+  vllm:
+    endpoint: http://ollama.sre-mcp-dev.svc.cluster.local:11434/v1
+    apiKey: not-needed
+
+  prometheus:
+    enabled: false   # No Prometheus Operator in dev
+
+rca:
+  replicaCount: 1
+  image:
+    repository: sre-mcp-rca    # local image name (no registry prefix)
+    tag: latest
+    pullPolicy: Never           # use locally built image
+  ingress:
+    enabled: false
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: false
+
+monitor:
+  replicaCount: 1
+  image:
+    repository: sre-mcp-monitor
+    tag: latest
+    pullPolicy: Never
+  ingress:
+    enabled: false
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: false
+
+remediation:
+  replicaCount: 1
+  image:
+    repository: sre-mcp-remediation
+    tag: latest
+    pullPolicy: Never
+  ingress:
+    enabled: false
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: false

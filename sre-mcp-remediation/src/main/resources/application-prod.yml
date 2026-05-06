@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${PG_HOST}:5432/${PG_DB:sre_mcp}
+    username: ${PG_USER}
+    password: ${PG_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: true
+  ai:
+    openai:
+      base-url: ${VLLM_ENDPOINT}
+      api-key: ${VLLM_API_KEY}
+      chat:
+        options:
+          model: Qwen2.5-72B-Instruct
+          temperature: 0.1
+          max-tokens: 4096
+
+huaweicloud:
+  region: ${HW_REGION:cn-north-4}
+  ak: ${HW_AK}
+  sk: ${HW_SK}
+  project-id: ${HW_PROJECT_ID}
+
+remediation:
+  circuit-breaker:
+    failure-threshold: 3
+    window-minutes: 30
+    open-minutes: 60
+  approval:
+    ttl-hours: 8
+
+logging:
+  level:
+    com.huawei.cloud.sre.remediation: INFO
+    org.springframework.ai: WARN
+    org.hibernate.SQL: WARN
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1

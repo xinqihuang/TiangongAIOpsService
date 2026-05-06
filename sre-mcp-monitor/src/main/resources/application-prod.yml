@@ -1,0 +1,39 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  ai:
+    openai:
+      base-url: ${VLLM_ENDPOINT}
+      api-key: ${VLLM_API_KEY}
+      chat:
+        options:
+          model: ${VLLM_MODEL:Qwen2.5-72B-Instruct}
+          temperature: 0.05
+
+huaweicloud:
+  region: ${HW_REGION:cn-north-4}
+  ak: ${HW_AK}
+  sk: ${HW_SK}
+  project-id: ${HW_PROJECT_ID}
+
+monitor:
+  baseline:
+    alpha: 0.15
+  alert:
+    window-minutes: 3
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      huaweicloud-api:
+        sliding-window-size: 20
+        failure-rate-threshold: 40
+        wait-duration-in-open-state: 60s
+
+logging:
+  level:
+    com.huawei.cloud.sre.monitor: INFO
+    root: WARN

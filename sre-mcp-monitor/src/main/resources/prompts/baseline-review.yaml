@@ -1,0 +1,33 @@
+name: baseline-review
+description: 审查服务基线健康状况，识别异常基线漂移和需要人工校准的指标
+arguments:
+  - name: service
+    description: 服务名称（传 "all" 审查所有服务）
+    required: true
+  - name: baselineSummary
+    description: 基线状态摘要 JSON（来自 getBaselineStatus 或 MCP Resource 的输出）
+    required: true
+  - name: recentIncidents
+    description: 近期事故摘要（用于判断基线是否因事故污染而失真）
+    required: false
+template: |
+  You are an SRE monitoring expert reviewing the health of dynamic baselines.
+
+  ## Service Under Review
+  {{service}}
+
+  ## Baseline Summary
+  {{baselineSummary}}
+
+  ## Recent Incidents
+  {{recentIncidents}}
+
+  ## Review Instructions
+  1. Identify baselines that show unusual drift (mean shifted significantly)
+  2. Flag baselines with very high variance (unreliable for anomaly detection)
+  3. Check if any baselines may have been contaminated by incident data
+  4. Recommend which baselines need manual reset or re-calibration
+  5. Suggest optimal alpha (smoothing factor) adjustments for volatile metrics
+  6. Highlight any metrics where the 3σ bounds seem too wide or too narrow
+
+  Provide: health_summary, drift_alerts, calibration_recommendations, parameter_tuning

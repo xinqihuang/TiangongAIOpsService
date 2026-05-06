@@ -1,0 +1,81 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: sre-mcp-monitor
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  threads:
+    virtual:
+      enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 4
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: sre-monitor-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      acks: all
+      retries: 3
+
+  ai:
+    mcp:
+      server:
+        name: sre-mcp-monitor
+        version: 0.1.0
+        type: SYNC
+
+monitor:
+  baseline:
+    alpha: ${MONITOR_BASELINE_ALPHA:0.2}
+  alert:
+    window-minutes: ${MONITOR_ALERT_WINDOW_MINUTES:5}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: sre-mcp-monitor
+
+resilience4j:
+  retry:
+    instances:
+      huaweicloud-api:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - com.huawei.cloud.sre.common.exception.HuaweiCloudException
+  circuitbreaker:
+    instances:
+      huaweicloud-api:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+
+logging:
+  level:
+    com.huawei.cloud.sre.monitor: INFO
+    org.springframework.kafka: WARN

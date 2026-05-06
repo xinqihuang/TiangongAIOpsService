@@ -1,0 +1,64 @@
+name: post-remediation-review
+description: 修复操作完成后的效果评估，生成修复报告和改进建议
+arguments:
+  - name: contextId
+    description: 修复工单 ID
+    required: true
+  - name: action
+    description: 已执行的修复操作
+    required: true
+  - name: targetService
+    description: 目标服务名称
+    required: true
+  - name: executionHistory
+    description: 操作执行日志（时间戳 + 操作记录）
+    required: true
+  - name: currentMetrics
+    description: 修复后的关键指标（如 CPU、错误率、响应时间）
+    required: false
+template: |
+  请对以下修复操作进行事后评审：
+
+  ## 修复工单信息
+  - **工单号**：{{contextId}}
+  - **操作名称**：{{action}}
+  - **目标服务**：{{targetService}}
+
+  ## 执行记录
+  ```
+  {{executionHistory}}
+  ```
+
+  ## 修复后指标
+  {{currentMetrics}}
+
+  ---
+
+  ## 评审要求
+
+  请从以下维度生成修复评审报告：
+
+  ### 1. 修复效果评估
+  - 故障是否已完全恢复（是/否/部分）
+  - 服务恢复时间（MTTR）
+  - 与 SLA 目标的差距
+
+  ### 2. 操作合规性检查
+  - 是否遵循了 SOP 步骤
+  - 审批流程是否完整
+  - 是否有未预期的副作用
+
+  ### 3. 根因确认
+  - 本次操作验证的根因假设
+  - 是否需要进一步深挖（RCA）
+
+  ### 4. 改进建议
+  - 可以自动化的手动步骤
+  - 需要添加的预防性监控
+  - SOP 流程改进点
+
+  ### 5. 知识沉淀
+  - 本次修复的经验总结（3 条以内）
+  - 是否需要更新 SOP 策略库
+
+  请以结构化报告格式输出，语言简洁、结论明确。

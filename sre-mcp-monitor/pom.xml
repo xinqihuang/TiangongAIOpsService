@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.huawei.cloud.sre</groupId>
+        <artifactId>sre-mcp-platform</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>sre-mcp-monitor</artifactId>
+    <packaging>jar</packaging>
+    <name>sre-mcp-monitor</name>
+    <description>指标智能监控 MCP Server (端口 8002)</description>
+
+    <dependencies>
+        <!-- Internal (exclude Redisson from cached common jar) -->
+        <dependency>
+            <groupId>com.huawei.cloud.sre</groupId>
+            <artifactId>sre-mcp-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <artifactId>redisson-spring-boot-starter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <artifactId>redisson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Web + MCP -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+        </dependency>
+
+        <!-- No JPA/SQL dependency: repositories use in-memory ConcurrentHashMap -->
+
+        <!-- Redis (baseline state cache) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Kafka (monitoring event bus) -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <!-- RAG: vector store for emergency plan retrieval -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-vector-store</artifactId>
+        </dependency>
+
+        <!-- JSON serialization for Kafka payloads -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <swr.registry>swr.cn-north-4.myhuaweicloud.com/sre-mcp</swr.registry>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <image>
+                        <name>${swr.registry}/sre-mcp-monitor:${project.version}</name>
+                        <pullPolicy>IF_NOT_PRESENT</pullPolicy>
+                        <env>
+                            <BP_JVM_VERSION>21</BP_JVM_VERSION>
+                            <BP_SPRING_CLOUD_BINDINGS_DISABLED>true</BP_SPRING_CLOUD_BINDINGS_DISABLED>
+                        </env>
+                    </image>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

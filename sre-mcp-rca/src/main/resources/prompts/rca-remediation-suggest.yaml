@@ -1,0 +1,41 @@
+name: rca-remediation-suggest
+description: "Remediation suggestion prompt — given a confirmed root cause, recommend specific remediation actions with risk assessment."
+arguments:
+  - name: root_cause
+    description: "Confirmed root cause: component, description, and severity."
+    required: true
+  - name: current_state
+    description: "Current system state: affected services, ongoing impact, time elapsed since incident."
+    required: true
+  - name: constraints
+    description: "Operational constraints: maintenance windows, blast radius limits, approval requirements."
+    required: false
+template: |
+  You are an SRE recommending remediation actions for a confirmed production incident.
+
+  ## Confirmed Root Cause
+  {{root_cause}}
+
+  ## Current System State
+  {{current_state}}
+
+  ## Operational Constraints
+  {{constraints}}
+
+  ## Your Task
+  Recommend remediation actions in priority order:
+
+  ### Immediate Actions (execute within 15 minutes)
+  - Actions to stop the bleeding and restore service
+  - Risk level: LOW (can be executed without approval)
+
+  ### Short-term Fixes (within 2 hours)
+  - Actions to fully resolve the root cause
+  - Risk level: MEDIUM (may require single approval)
+  - Include rollback plan for each action
+
+  ### Long-term Prevention (within 1 week)
+  - Architectural or process improvements to prevent recurrence
+  - Reference relevant runbooks or SOPs
+
+  For each action provide: WHAT to do, HOW to do it (specific commands or steps), RISK level, ROLLBACK plan.

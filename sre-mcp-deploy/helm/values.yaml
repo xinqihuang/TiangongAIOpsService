@@ -1,0 +1,180 @@
+## Global configuration shared across all MCP Server modules
+global:
+  namespace: sre-mcp
+  springProfile: prod
+  useExternalSecrets: false
+
+  imagePullSecrets:
+    - name: swr-secret
+
+  serviceAccount:
+    annotations: {}
+
+  huaweicloud:
+    region: cn-north-4
+    projectId: ""
+    ak: ""
+    sk: ""
+
+  redis:
+    host: redis-master.sre-infra.svc.cluster.local
+    port: "6379"
+    password: ""
+
+  postgres:
+    host: postgres.sre-infra.svc.cluster.local
+    database: sre_mcp
+    username: sre
+    password: ""
+
+  kafka:
+    bootstrapServers: kafka.sre-infra.svc.cluster.local:9092
+
+  vllm:
+    endpoint: http://vllm.sre-vllm.svc.cluster.local:8000
+    apiKey: not-needed
+
+  prometheus:
+    enabled: true
+
+## ──────────────────────────────────────────────
+## sre-mcp-rca (端口 8001)
+## ──────────────────────────────────────────────
+rca:
+  enabled: true
+  replicaCount: 2
+
+  image:
+    repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-rca
+    tag: "0.1.0-SNAPSHOT"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8001
+
+  ingress:
+    enabled: true
+    className: nginx
+    host: rca.sre-mcp.internal
+    tls:
+      - secretName: sre-mcp-tls
+        hosts:
+          - rca.sre-mcp.internal
+    annotations: {}
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  extraEnv:
+    HW_CCE_CLUSTER_ID: ""
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+## ──────────────────────────────────────────────
+## sre-mcp-monitor (端口 8002)
+## ──────────────────────────────────────────────
+monitor:
+  enabled: true
+  replicaCount: 2
+
+  image:
+    repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-monitor
+    tag: "0.1.0-SNAPSHOT"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8002
+
+  ingress:
+    enabled: true
+    className: nginx
+    host: monitor.sre-mcp.internal
+    tls:
+      - secretName: sre-mcp-tls
+        hosts:
+          - monitor.sre-mcp.internal
+    annotations: {}
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  extraEnv: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+## ──────────────────────────────────────────────
+## sre-mcp-remediation (端口 8003)
+## ──────────────────────────────────────────────
+remediation:
+  enabled: true
+  replicaCount: 2
+
+  image:
+    repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-remediation
+    tag: "0.1.0-SNAPSHOT"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8003
+
+  ingress:
+    enabled: true
+    className: nginx
+    host: remediation.sre-mcp.internal
+    tls:
+      - secretName: sre-mcp-tls
+        hosts:
+          - remediation.sre-mcp.internal
+    annotations: {}
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  extraEnv: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

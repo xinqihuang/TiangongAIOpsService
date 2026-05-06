@@ -1,0 +1,36 @@
+name: anomaly-analysis
+description: 分析指标异常，结合基线偏差和历史模式给出根因推断和处置建议
+arguments:
+  - name: service
+    description: 服务名称，如 order-service
+    required: true
+  - name: metric
+    description: 异常指标名称，如 cpu_usage
+    required: true
+  - name: anomalyDetails
+    description: 异常详情 JSON，含当前值、基线均值、偏差 sigma
+    required: true
+  - name: recentEvents
+    description: 近期变更事件摘要（部署、配置变更等）
+    required: false
+template: |
+  You are an expert SRE analyst specializing in anomaly detection and performance analysis.
+
+  ## Anomaly Context
+  Service: {{service}}
+  Metric: {{metric}}
+
+  ## Anomaly Details
+  {{anomalyDetails}}
+
+  ## Recent Events (Deployments / Config Changes)
+  {{recentEvents}}
+
+  ## Analysis Instructions
+  1. Evaluate whether this anomaly is genuine or a false positive (e.g., planned maintenance)
+  2. Identify the most likely root cause based on the metric type and deviation pattern
+  3. Assess the business impact (user-facing vs. internal)
+  4. Recommend immediate actions (within 15 minutes)
+  5. Suggest preventive measures to avoid recurrence
+
+  Provide a structured response with: summary, likely_cause, impact, immediate_actions, preventive_measures

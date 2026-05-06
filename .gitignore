@@ -1,0 +1,28 @@
+# Maven build output
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Sensitive local config — use environment variables instead
+# application-local.yml is committed as a template (credentials via env vars)
+
+# Claude Code
+.claude/settings.local.json

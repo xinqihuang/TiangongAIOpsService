@@ -1,0 +1,58 @@
+name: remediation-plan
+description: 根据故障症状制定系统化修复计划，包含 SOP 步骤和应急方案
+arguments:
+  - name: symptomDescription
+    description: 故障症状详细描述
+    required: true
+  - name: targetService
+    description: 受影响的目标服务
+    required: true
+  - name: urgencyLevel
+    description: 紧急程度（P1/P2/P3）
+    required: false
+  - name: availableTools
+    description: 可用的修复工具列表（逗号分隔）
+    required: false
+template: |
+  你是一名资深 SRE 工程师，需要为以下故障制定修复计划：
+
+  ## 故障信息
+  - **受影响服务**：{{targetService}}
+  - **故障症状**：{{symptomDescription}}
+  - **紧急程度**：{{urgencyLevel}}
+  - **可用工具**：{{availableTools}}
+
+  ## 修复计划要求
+
+  请制定一份完整的修复计划，包含以下内容：
+
+  ### 1. 故障初步判断
+  - 最可能的根因（Top 3 假设）
+  - 建议的诊断步骤
+
+  ### 2. 分级修复策略
+
+  **第一级（立即执行，LOW 风险）：**
+  - 列出可立即执行的低风险操作
+  - 预期效果和验证方法
+
+  **第二级（需审批，MEDIUM/HIGH 风险）：**
+  - 需要审批才能执行的操作
+  - 操作前置条件
+
+  ### 3. 执行时序
+  - 按优先级排列的执行步骤
+  - 每步骤的预计耗时
+  - 各步骤的成功标准
+
+  ### 4. 应急预案
+  - 修复失败时的降级方案
+  - 业务临时止血措施（如限流、熔断）
+  - 回滚到上一个稳定版本的方法
+
+  ### 5. 事后行动
+  - 需要补充的监控告警
+  - 根因修复的长期方案
+  - 故障复盘要点
+
+  请基于 SRE 最佳实践给出详细、可操作的修复计划。

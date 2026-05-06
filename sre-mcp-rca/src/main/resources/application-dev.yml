@@ -1,0 +1,41 @@
+# Dev profile — for local development with Docker Compose (docker-compose.dev.yml)
+# Start dependencies: docker compose -f docker-compose.dev.yml up -d
+# Run app: mvn spring-boot:run -pl sre-mcp-rca -Dspring-boot.run.profiles=dev
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  # Dev uses Ollama instead of vLLM (lighter weight)
+  ai:
+    openai:
+      base-url: ${VLLM_ENDPOINT:http://localhost:11434/v1}
+      api-key: ollama
+      chat:
+        options:
+          model: ${VLLM_MODEL:qwen2.5:7b}
+          temperature: 0.1
+          max-tokens: 2048
+      embedding:
+        options:
+          model: ${VLLM_EMBED_MODEL:nomic-embed-text}
+    mcp:
+      server:
+        # Comment out to run in HTTP mode (default); uncomment for STDIO mode (Claude Desktop)
+        # transport: stdio
+
+# Use dev credentials from docker-compose
+huaweicloud:
+  ak: dev-mock-ak
+  sk: dev-mock-sk
+  project-id: dev-project-id
+
+# Verbose logging in dev
+logging:
+  level:
+    com.huawei.cloud.sre: DEBUG
+    org.springframework.ai: INFO
+    org.hibernate.SQL: DEBUG
+    org.neo4j.driver: INFO

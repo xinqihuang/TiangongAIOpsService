@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty name="APP_NAME" source="spring.application.name" defaultValue="sre-mcp-rca"/>
+
+    <!-- Dev: human-readable colored console -->
+    <springProfile name="dev">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.huawei.cloud.sre" level="DEBUG"/>
+        <logger name="org.springframework.ai" level="INFO"/>
+    </springProfile>
+
+    <!-- Prod / default: structured JSON logs (parsed by LTS) -->
+    <springProfile name="!dev">
+        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"app":"${APP_NAME}","env":"${SPRING_PROFILES_ACTIVE:-default}"}</customFields>
+                <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+                <fieldNames>
+                    <timestamp>timestamp</timestamp>
+                    <message>message</message>
+                    <logger>logger</logger>
+                    <thread>thread</thread>
+                    <level>level</level>
+                </fieldNames>
+            </encoder>
+        </appender>
+
+        <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>true</neverBlock>
+            <appender-ref ref="JSON_CONSOLE"/>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_JSON"/>
+        </root>
+        <logger name="com.huawei.cloud.sre" level="INFO"/>
+        <logger name="org.springframework.ai" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="org.neo4j.driver" level="WARN"/>
+    </springProfile>
+</configuration>

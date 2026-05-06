@@ -1,0 +1,113 @@
+{{- $ports := dict "rca" 8001 "monitor" 8002 "remediation" 8003 }}
+{{- range $module := list "rca" "monitor" "remediation" }}
+{{- $mod := index $.Values $module }}
+{{- if $mod.enabled }}
+{{- $port := index $ports $module }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "sre-mcp-%s" $module }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "sre-mcp.labels" $ | nindent 4 }}
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+spec:
+  replicas: {{ $mod.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        {{- include "sre-mcp.labels" $ | nindent 8 }}
+        {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ $port | quote }}
+        prometheus.io/path: "/actuator/prometheus"
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+    spec:
+      serviceAccountName: {{ printf "sre-mcp-%s" $module }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: {{ printf "sre-mcp-%s" $module }}
+          image: {{ $mod.image.repository }}:{{ $mod.image.tag }}
+          imagePullPolicy: {{ $mod.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ printf "sre-mcp-%s-config" $module }}
+            - secretRef:
+                name: {{ printf "sre-mcp-%s-secret" $module }}
+          env:
+            - name: SERVER_PORT
+              value: {{ $port | quote }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml $mod.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mod.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mod.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mod.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,30 @@
+name: rca-similar-incidents
+description: "Similar incident analysis prompt — given a list of historical similar incidents, extract patterns and apply them to the current incident."
+arguments:
+  - name: current_incident
+    description: "Description of the current incident."
+    required: true
+  - name: similar_incidents
+    description: "List of similar historical incidents with their root causes and resolutions."
+    required: true
+template: |
+  You are analyzing historical incident patterns to accelerate root cause identification.
+
+  ## Current Incident
+  {{current_incident}}
+
+  ## Similar Historical Incidents
+  {{similar_incidents}}
+
+  ## Your Task
+  1. Identify which historical incident is MOST similar to the current one and explain why
+  2. Extract the common pattern or failure mode across these incidents
+  3. Assess whether the current incident is likely a recurrence of a known issue
+  4. If it is a recurrence:
+     - Identify why the previous fix did not prevent recurrence
+     - Suggest a more permanent fix
+  5. If it is a new pattern:
+     - Highlight what is different from historical incidents
+     - Flag it as a new failure mode for the knowledge base
+
+  Output actionable insights in bullet point format.

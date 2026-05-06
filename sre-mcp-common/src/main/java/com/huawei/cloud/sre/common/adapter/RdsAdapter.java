@@ -1,0 +1,153 @@
+package com.huawei.cloud.sre.common.adapter;
+
+import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
+import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huaweicloud.sdk.core.exception.ServiceResponseException;
+import com.huaweicloud.sdk.rds.v3.RdsClient;
+import com.huaweicloud.sdk.rds.v3.model.ListInstancesRequest;
+import com.huaweicloud.sdk.rds.v3.region.RdsRegion;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * 华为云 RDS（云数据库）适配器。
+ *
+ * <p>提供数据库实例查询能力，用于数据库故障排查与主备切换场景。
+ */
+@Component
+public class RdsAdapter {
+
+    private static final Logger log = LoggerFactory.getLogger(RdsAdapter.class);
+    private static final String SERVICE_NAME = "RDS";
+
+    private final RdsClient client;
+    private final MeterRegistry meterRegistry;
+
+    /**
+     * @param credentialProvider 华为云凭证提供者
+     * @param region             华为云区域
+     * @param meterRegistry      Micrometer 指标注册表
+     */
+    @Autowired
+    public RdsAdapter(
+            HuaweiCloudCredentialProvider credentialProvider,
+            @Value("${huaweicloud.region:cn-north-4}") String region,
+            MeterRegistry meterRegistry
+    ) {
+        RdsClient tempClient = null;
+        try {
+            tempClient = RdsClient.newBuilder()
+                    .withCredential(credentialProvider.getCredentials())
+                    .withRegion(RdsRegion.valueOf(region))
+                    .build();
+        } catch (Exception e) {
+            log.warn("RdsAdapter disabled (region not supported): {}", e.getMessage());
+        }
+        this.client = tempClient;
+        this.meterRegistry = meterRegistry;
+    }
+
+    /** 测试用构造器，允许注入 Mock RdsClient。 */
+    RdsAdapter(RdsClient client, MeterRegistry meterRegistry) {
+        this.client = client;
+        this.meterRegistry = meterRegistry;
+    }
+
+    /**
+     * 列出所有 RDS 实例信息。
+     *
+     * @return RDS 实例列表，每项包含 id、name、status、type 字段
+     * @throws HuaweiCloudException 若 RDS API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listInstances() {
+        log.info("RDS listInstances");
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListInstancesRequest().withLimit(100).withOffset(0);
+            var response = client.listInstances(request);
+
+            List<Map<String, String>> instances = List.of();
+            if (response.getInstances() != null) {
+                instances = response.getInstances().stream()
+                        .map(inst -> Map.of(
+                                "id", inst.getId() != null ? inst.getId() : "",
+                                "name", inst.getName() != null ? inst.getName() : "",
+                                "status", inst.getStatus() != null ? inst.getStatus() : "Unknown",
+                                "type", inst.getType() != null ? inst.getType() : "Unknown"
+                        ))
+                        .toList();
+            }
+            log.info("RDS listInstances success count={}", instances.size());
+            return instances;
+        } catch (ServiceResponseException e) {
+            log.error("RDS listInstances failed httpStatus={}", e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "RDS 实例列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listInstances"));
+        }
+    }
+
+    /**
+     * 按实例 ID 过滤，返回指定实例信息。
+     *
+     * @param instanceId RDS 实例 ID
+     * @return 实例信息，若不存在则返回 empty
+     * @throws HuaweiCloudException 若 RDS API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public Optional<Map<String, String>> getInstance(String instanceId) {
+        log.info("RDS getInstance instanceId={}", instanceId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListInstancesRequest().withId(instanceId).withLimit(1).withOffset(0);
+            var response = client.listInstances(request);
+
+            if (response.getInstances() == null || response.getInstances().isEmpty()) {
+                return Optional.empty();
+            }
+            var inst = response.getInstances().get(0);
+            Map<String, String> info = Map.of(
+                    "id", inst.getId() != null ? inst.getId() : "",
+                    "name", inst.getName() != null ? inst.getName() : "",
+                    "status", inst.getStatus() != null ? inst.getStatus() : "Unknown",
+                    "type", inst.getType() != null ? inst.getType() : "Unknown"
+            );
+            log.info("RDS getInstance success instanceId={}", instanceId);
+            return Optional.of(info);
+        } catch (ServiceResponseException e) {
+            log.error("RDS getInstance failed instanceId={} httpStatus={}", instanceId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "RDS 实例查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "getInstance"));
+        }
+    }
+    /** 检查 client 是否可用（区域不支持时为 null）。*/
+    private void requireClient() {
+        if (client == null) {
+            throw new HuaweiCloudException("Rds", "Rds adapter not available in current region", 503, "REGION_NOT_SUPPORTED", null, null);
+        }
+    }
+
+}

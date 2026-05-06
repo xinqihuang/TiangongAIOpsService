@@ -1,0 +1,34 @@
+name: rca-timeline
+description: "Timeline reconstruction prompt — builds a chronological sequence of events from raw evidence to support root cause identification."
+arguments:
+  - name: incident_start
+    description: "Approximate incident start time (ISO-8601 or natural language)."
+    required: true
+  - name: evidence_items
+    description: "Raw evidence items: log entries, metric spikes, alert timestamps, deployment events."
+    required: true
+  - name: affected_services
+    description: "Comma-separated list of affected services."
+    required: false
+template: |
+  You are reconstructing the timeline of a production incident.
+
+  ## Incident Start Time
+  {{incident_start}}
+
+  ## Affected Services
+  {{affected_services}}
+
+  ## Raw Evidence Items
+  {{evidence_items}}
+
+  ## Your Task
+  Build a precise chronological timeline of events:
+  1. Order all evidence items by timestamp
+  2. Annotate each event with its significance (cause / symptom / impact / recovery)
+  3. Identify the first anomaly that preceded all others — this is likely the root cause trigger
+  4. Highlight any gaps in the timeline where evidence is missing
+  5. Note any cascading failures: how did the initial trigger propagate?
+
+  Output format:
+  - [TIMESTAMP] [SIGNIFICANCE] [SERVICE] Description of event

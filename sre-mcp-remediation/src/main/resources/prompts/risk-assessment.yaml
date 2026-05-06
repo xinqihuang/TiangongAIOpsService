@@ -1,0 +1,47 @@
+name: risk-assessment
+description: 评估修复操作风险，生成详细风险报告和缓解建议
+arguments:
+  - name: action
+    description: 拟执行的修复操作名称，如 restartPod、dbFailover
+    required: true
+  - name: targetService
+    description: 目标服务名称
+    required: true
+  - name: context
+    description: 操作背景信息，如环境（prod/staging）、当前告警、业务影响
+    required: false
+template: |
+  你是一名 SRE 专家，正在评估以下修复操作的风险：
+
+  ## 操作信息
+  - 操作名称：{{action}}
+  - 目标服务：{{targetService}}
+  - 背景信息：{{context}}
+
+  ## 评估要求
+  请从以下维度进行风险评估：
+
+  1. **风险级别**（LOW / MEDIUM / HIGH）
+     - LOW：Pod 重启、扩缩容等自愈性操作，影响范围局限、可自动回滚
+     - MEDIUM：磁盘清理、连接池调整、流量切换，需要协调依赖服务
+     - HIGH：节点替换、数据库故障转移、版本回滚，可能影响全量用户或数据
+
+  2. **影响范围**
+     - 受影响的用户数量级
+     - 受影响的上下游服务
+     - 预计中断时长
+
+  3. **风险因素**
+     - 列举可能导致操作失败的因素
+     - 特别关注生产环境、金融关键服务、数据一致性风险
+
+  4. **缓解措施**
+     - 操作前需完成的验证步骤
+     - 操作中的监控指标
+     - 操作失败时的回滚方案
+
+  5. **审批建议**
+     - 是否需要审批（LOW 无需，MEDIUM 单人，HIGH 双人）
+     - 推荐在何种时间窗口执行（如非业务高峰期）
+
+  请给出结构化的风险报告。

@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sre_mcp
+    username: postgres
+    password: dev
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+  ai:
+    openai:
+      base-url: http://localhost:11434/v1
+      api-key: not-needed
+      chat:
+        options:
+          model: qwen2.5:7b
+          temperature: 0.1
+
+huaweicloud:
+  region: cn-north-4
+  ak: mock-ak
+  sk: mock-sk
+  project-id: mock-project-id
+
+logging:
+  level:
+    com.huawei.cloud.sre.remediation: DEBUG
+    org.springframework.ai: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0

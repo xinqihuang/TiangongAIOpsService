@@ -1,0 +1,45 @@
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  ai:
+    openai:
+      base-url: http://localhost:11434/v1
+      api-key: not-needed
+      chat:
+        options:
+          model: qwen2.5:7b
+          temperature: 0.1
+      embedding:
+        options:
+          model: nomic-embed-text
+
+# ⚠️  请用你自己的华为云凭证替换下面的占位符
+# 也可以通过环境变量传入：HW_AK / HW_SK / HW_PROJECT_ID
+# project-id 必须填写，否则 SDK 会调用 IAM 自动发现（需要联网且凭证有效）
+huaweicloud:
+  region: ${HW_REGION:cn-north-9}
+  ak: ${HW_AK}
+  sk: ${HW_SK}
+  project-id: ${HW_PROJECT_ID}
+
+mcp:
+  security:
+    enabled: false
+
+management:
+  health:
+    redis:
+      enabled: false
+    kafka:
+      enabled: false
+    neo4j:
+      enabled: false
+
+logging:
+  level:
+    com.huawei.cloud.sre.monitor: DEBUG
+    org.springframework.kafka: OFF
+    org.springframework.data.redis: WARN

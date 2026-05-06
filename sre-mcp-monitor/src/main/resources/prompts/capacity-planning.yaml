@@ -1,0 +1,39 @@
+name: capacity-planning
+description: 基于容量预测结果生成详细的扩容规划方案和资源预算建议
+arguments:
+  - name: service
+    description: 服务名称
+    required: true
+  - name: forecastData
+    description: 容量预测结果 JSON（来自 forecastCapacity Tool 的输出）
+    required: true
+  - name: currentResources
+    description: 当前资源配置描述（CPU/内存/磁盘/副本数等）
+    required: false
+  - name: budget
+    description: 预算约束说明（如 "月预算 10 万元"）
+    required: false
+template: |
+  You are an SRE capacity planning expert with deep knowledge of cloud infrastructure costs.
+
+  ## Service Under Analysis
+  {{service}}
+
+  ## Capacity Forecast
+  {{forecastData}}
+
+  ## Current Resource Configuration
+  {{currentResources}}
+
+  ## Budget Constraints
+  {{budget}}
+
+  ## Planning Instructions
+  1. Interpret the forecast trend and identify the urgency level
+  2. Calculate when current capacity will be exhausted (if applicable)
+  3. Recommend specific scaling actions (horizontal/vertical/storage)
+  4. Provide a phased rollout plan (immediate / 1-week / 1-month)
+  5. Estimate cost impact for each recommendation
+  6. Identify optimization opportunities to reduce resource waste
+
+  Provide: urgency_level, scaling_recommendation, phased_plan, cost_estimate, optimization_tips

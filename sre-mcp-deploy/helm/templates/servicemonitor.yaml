@@ -1,0 +1,31 @@
+{{- $ports := dict "rca" 8001 "monitor" 8002 "remediation" 8003 }}
+{{- if $.Values.global.prometheus.enabled }}
+{{- range $module := list "rca" "monitor" "remediation" }}
+{{- $mod := index $.Values $module }}
+{{- if $mod.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "sre-mcp-%s" $module }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "sre-mcp.labels" $ | nindent 4 }}
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+    # Label required by Prometheus Operator to discover this ServiceMonitor
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 6 }}
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+      scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+      - {{ $.Values.global.namespace }}
+{{- end }}
+{{- end }}
+{{- end }}

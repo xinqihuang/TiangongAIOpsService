@@ -1,0 +1,34 @@
+name: alert-triage
+description: 对告警分组进行优先级排序和处置建议，帮助 On-Call 工程师快速决策
+arguments:
+  - name: alertGroups
+    description: 告警分组列表 JSON（来自 dedupAlerts Tool 的输出）
+    required: true
+  - name: serviceTopology
+    description: 服务拓扑描述（用于判断上下游影响）
+    required: false
+  - name: oncallContext
+    description: 当前 On-Call 上下文（值班人员、时段、已知问题等）
+    required: false
+template: |
+  You are an experienced SRE On-Call engineer performing alert triage.
+  Your goal is to help the on-call engineer focus on the most critical issues first.
+
+  ## Alert Groups (After Deduplication)
+  {{alertGroups}}
+
+  ## Service Topology
+  {{serviceTopology}}
+
+  ## On-Call Context
+  {{oncallContext}}
+
+  ## Triage Instructions
+  1. Rank alert groups by business impact (user-facing > internal > background)
+  2. Identify alert storms vs. genuine incidents
+  3. Suggest which alerts can be safely silenced during investigation
+  4. Provide a prioritized action plan (P1 → P2 → P3)
+  5. Estimate time required to resolve each group
+  6. Flag any alerts that may indicate a cascading failure
+
+  Provide: priority_ranking, action_plan, suggested_silences, estimated_resolution_time

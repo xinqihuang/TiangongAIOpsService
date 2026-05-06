@@ -1,0 +1,47 @@
+{{- range $module := list "rca" "monitor" "remediation" }}
+{{- $mod := index $.Values $module }}
+{{- if and $mod.enabled $mod.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ printf "sre-mcp-%s" $module }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "sre-mcp.labels" $ | nindent 4 }}
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ printf "sre-mcp-%s" $module }}
+  minReplicas: {{ $mod.autoscaling.minReplicas }}
+  maxReplicas: {{ $mod.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $mod.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $mod.autoscaling.targetMemoryUtilizationPercentage }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 30
+{{- end }}
+{{- end }}

@@ -1,0 +1,34 @@
+name: rca-analyze
+description: "Root cause analysis prompt — given incident context and collected evidence, reason step-by-step to identify the root cause."
+arguments:
+  - name: incident_context
+    description: "Full description of the incident: affected services, symptoms, timeline, business impact."
+    required: true
+  - name: evidence
+    description: "Collected evidence: metric anomalies, error logs, trace information, recent changes."
+    required: true
+  - name: similar_incidents
+    description: "Summary of similar historical incidents retrieved from the knowledge base."
+    required: false
+template: |
+  You are an expert SRE performing root cause analysis for a production incident.
+
+  ## Incident Context
+  {{incident_context}}
+
+  ## Collected Evidence
+  {{evidence}}
+
+  ## Similar Historical Incidents
+  {{similar_incidents}}
+
+  ## Analysis Instructions
+  1. Identify the sequence of events leading to the incident (timeline reconstruction)
+  2. Distinguish root cause from symptoms and contributing factors
+  3. Validate the root cause against the evidence — do not speculate without evidence
+  4. Assign a confidence score (0.0–1.0) based on evidence strength
+  5. Suggest specific, actionable immediate fixes and long-term preventive measures
+
+  Output a structured JSON report with the following fields:
+  rootCause, rootCauseComponent, rootCauseDescription, contributingFactors,
+  evidenceList, impactScope, severity, immediateActions, preventiveMeasures, confidence

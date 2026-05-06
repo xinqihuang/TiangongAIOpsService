@@ -1,0 +1,25 @@
+{{- $ports := dict "rca" 8001 "monitor" 8002 "remediation" 8003 }}
+{{- range $module := list "rca" "monitor" "remediation" }}
+{{- $mod := index $.Values $module }}
+{{- if $mod.enabled }}
+{{- $port := index $ports $module }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "sre-mcp-%s" $module }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "sre-mcp.labels" $ | nindent 4 }}
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+spec:
+  type: {{ $mod.service.type }}
+  ports:
+    - name: http
+      port: {{ $mod.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+{{- end }}
+{{- end }}

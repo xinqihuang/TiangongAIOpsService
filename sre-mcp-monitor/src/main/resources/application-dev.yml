@@ -1,0 +1,29 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  ai:
+    openai:
+      base-url: ${VLLM_ENDPOINT:http://localhost:11434/v1}
+      api-key: ${VLLM_API_KEY:not-needed}
+      chat:
+        options:
+          model: ${VLLM_MODEL:qwen2.5:7b}
+          temperature: 0.1
+      embedding:
+        options:
+          model: ${EMBEDDING_MODEL:nomic-embed-text}
+
+huaweicloud:
+  region: cn-north-9
+  ak: HPUAY21EIYEM8I309V1S
+  sk: 9xK4vamP47HrlhV3SiK1Y29hbbfCXs3jlfhtlR9C
+  project-id: 8485913a181d46be99ec358bc1ce3b9b
+
+logging:
+  level:
+    com.huawei.cloud.sre.monitor: DEBUG
+    org.springframework.kafka: INFO
+    org.springframework.data.jpa: DEBUG

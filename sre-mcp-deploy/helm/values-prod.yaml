@@ -1,0 +1,145 @@
+## Production environment overlay — overrides values.yaml defaults
+## Intended for: 华为云 CCE 生产集群
+global:
+  namespace: sre-mcp
+  springProfile: prod
+  useExternalSecrets: true    # Use ESO + KMS instead of plain-text Secret
+
+  imagePullSecrets:
+    - name: swr-secret
+
+  huaweicloud:
+    region: cn-north-4
+    projectId: ""             # Set via CI/CD --set global.huaweicloud.projectId=...
+    ak: ""                    # Injected from KMS via ExternalSecret
+    sk: ""
+
+  redis:
+    host: dcs.cn-north-4.myhuaweicloud.com   # HuaweiCloud DCS Redis
+    port: "6380"
+    password: ""              # From ExternalSecret
+
+  postgres:
+    host: ""                  # HuaweiCloud RDS PostgreSQL endpoint
+    database: sre_mcp
+    username: sre_prod
+    password: ""              # From ExternalSecret
+
+  kafka:
+    bootstrapServers: ""      # HuaweiCloud DMS Kafka brokers
+
+  vllm:
+    endpoint: ""              # ECS vLLM endpoint (internal IP)
+    apiKey: ""                # From ExternalSecret
+
+  prometheus:
+    enabled: true
+
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: ""   # Placeholder; use CCE RBAC instead
+
+rca:
+  replicaCount: 3
+  image:
+    repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-rca
+    tag: "0.1.0"              # Pinned release tag, no "latest" in prod
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    className: nginx
+    host: rca.sre-mcp.example.com
+    tls:
+      - secretName: sre-mcp-tls-prod
+        hosts:
+          - rca.sre-mcp.example.com
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 65
+    targetMemoryUtilizationPercentage: 75
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: sre-mcp-rca
+          topologyKey: kubernetes.io/hostname
+
+monitor:
+  replicaCount: 3
+  image:
+    repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-monitor
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    className: nginx
+    host: monitor.sre-mcp.example.com
+    tls:
+      - secretName: sre-mcp-tls-prod
+        hosts:
+          - monitor.sre-mcp.example.com
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 65
+    targetMemoryUtilizationPercentage: 75
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: sre-mcp-monitor
+          topologyKey: kubernetes.io/hostname
+
+remediation:
+  replicaCount: 2
+  image:
+    repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-remediation
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    className: nginx
+    host: remediation.sre-mcp.example.com
+    tls:
+      - secretName: sre-mcp-tls-prod
+        hosts:
+          - remediation.sre-mcp.example.com
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 65
+    targetMemoryUtilizationPercentage: 75
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: sre-mcp-remediation
+          topologyKey: kubernetes.io/hostname

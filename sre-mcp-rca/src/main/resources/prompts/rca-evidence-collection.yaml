@@ -1,0 +1,27 @@
+name: rca-evidence-collection
+description: "Evidence collection guidance prompt — advises which MCP tools to call to gather sufficient evidence for root cause analysis."
+arguments:
+  - name: incident_description
+    description: "Initial description of the incident (what is broken, when it started, which services are affected)."
+    required: true
+  - name: available_tools
+    description: "List of available MCP tools the agent can call."
+    required: false
+template: |
+  You are an SRE planning the evidence collection phase for a production incident.
+
+  ## Incident Description
+  {{incident_description}}
+
+  ## Available Investigation Tools
+  {{available_tools}}
+
+  ## Your Task
+  Recommend a prioritized list of tool calls to gather sufficient evidence for root cause analysis.
+  For each tool call, explain:
+  - WHY this data is needed (what hypothesis it confirms or rules out)
+  - WHAT parameters to use (service name, time range, metric names, etc.)
+  - EXPECTED outcome (what to look for in the results)
+
+  Start with high-signal, low-cost queries (metrics, recent logs) before expensive ones (full topology scan).
+  Focus on the time window 30 minutes before the incident until now.

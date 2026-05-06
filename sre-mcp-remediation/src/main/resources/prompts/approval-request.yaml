@@ -1,0 +1,57 @@
+name: approval-request
+description: 生成修复操作审批申请书，包含操作说明、风险分析和预期效果
+arguments:
+  - name: contextId
+    description: 修复工单 ID
+    required: true
+  - name: action
+    description: 修复操作名称
+    required: true
+  - name: targetService
+    description: 目标服务名称
+    required: true
+  - name: riskLevel
+    description: 风险级别（MEDIUM 或 HIGH）
+    required: true
+  - name: symptomDescription
+    description: 当前故障症状描述
+    required: true
+  - name: requestedBy
+    description: 申请人
+    required: false
+template: |
+  ## 修复操作审批申请
+
+  **工单号**：{{contextId}}
+  **申请人**：{{requestedBy}}
+  **申请时间**：（系统自动填写）
+
+  ---
+
+  ### 一、故障背景
+
+  **受影响服务**：{{targetService}}
+  **故障症状**：{{symptomDescription}}
+
+  ### 二、修复方案
+
+  **操作名称**：{{action}}
+  **风险级别**：{{riskLevel}}
+
+  请根据以上信息，生成一份完整的审批申请书，包含：
+
+  1. **操作目的**：为什么要执行此操作，预期解决什么问题
+  2. **操作步骤**：详细的执行步骤（含命令或参数）
+  3. **影响评估**：
+     - 操作期间的服务可用性
+     - 受影响的用户群体
+     - 预计恢复时间（RTO）
+  4. **风险控制**：
+     - 前置检查清单（至少 3 项）
+     - 操作中的关键监控指标
+     - 回滚触发条件和步骤
+  5. **审批人员**：
+     - MEDIUM 风险：需 1 名 SRE Leader 审批
+     - HIGH 风险：需 SRE Leader + 业务负责人双重审批
+
+  请以正式审批文档格式输出。

@@ -1,0 +1,28 @@
+{{- range $module := list "rca" "monitor" "remediation" }}
+{{- $mod := index $.Values $module }}
+{{- if $mod.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "sre-mcp-%s-config" $module }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "sre-mcp.labels" $ | nindent 4 }}
+    {{- include "sre-mcp.selectorLabels" (dict "module" $module) | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ $.Values.global.springProfile | quote }}
+  HW_REGION: {{ $.Values.global.huaweicloud.region | quote }}
+  HW_PROJECT_ID: {{ $.Values.global.huaweicloud.projectId | quote }}
+  REDIS_HOST: {{ $.Values.global.redis.host | quote }}
+  REDIS_PORT: {{ $.Values.global.redis.port | quote }}
+  PG_HOST: {{ $.Values.global.postgres.host | quote }}
+  PG_DB: {{ $.Values.global.postgres.database | quote }}
+  PG_USER: {{ $.Values.global.postgres.username | quote }}
+  KAFKA_BOOTSTRAP_SERVERS: {{ $.Values.global.kafka.bootstrapServers | quote }}
+  VLLM_ENDPOINT: {{ $.Values.global.vllm.endpoint | quote }}
+  {{- range $k, $v := $mod.extraEnv }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}

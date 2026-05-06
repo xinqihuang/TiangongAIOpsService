@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: sre-mcp-remediation
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://${PG_HOST:localhost}:5432/${PG_DB:sre_mcp}
+    username: ${PG_USER:postgres}
+    password: ${PG_PASSWORD:dev}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      lettuce:
+        pool:
+          max-active: 8
+          min-idle: 1
+  ai:
+    mcp:
+      server:
+        name: sre-mcp-remediation
+        version: 1.0.0
+
+server:
+  port: 8003
+  servlet:
+    context-path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+remediation:
+  circuit-breaker:
+    failure-threshold: 3
+    window-minutes: 30
+    open-minutes: 30
+  approval:
+    ttl-hours: 4
+
+logging:
+  level:
+    com.huawei.cloud.sre.remediation: INFO
+    org.springframework.ai: INFO
+    org.hibernate.SQL: WARN
