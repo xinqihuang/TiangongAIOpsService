@@ -4,6 +4,10 @@ import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.dto.TraceResult;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
 import com.huaweicloud.sdk.apm.v1.ApmClient;
+import com.huaweicloud.sdk.apm.v1.model.InstanceSearchParam;
+import com.huaweicloud.sdk.apm.v1.model.ListAppEnvsRequest;
+import com.huaweicloud.sdk.apm.v1.model.ListAppsRequest;
+import com.huaweicloud.sdk.apm.v1.model.ListEnvInstancesRequest;
 import com.huaweicloud.sdk.apm.v1.model.ShowSpanSearchRequest;
 import com.huaweicloud.sdk.apm.v1.model.TraceSearchParam;
 import com.huaweicloud.sdk.apm.v1.region.ApmRegion;
@@ -19,12 +23,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 华为云 APM（应用性能管理）适配器。
  *
- * <p>封装 APM v1 链路追踪 API，支持按 Trace ID 查询 Span 列表。
+ * <p>封装 APM v1 链路追踪、应用列表、环境实例查询 API，
+ * 用于 RCA 中的分布式链路分析与服务拓扑查询。
  */
 @Component
 public class ApmAdapter {
@@ -76,6 +84,7 @@ public class ApmAdapter {
     @Retry(name = "huaweicloud-api")
     @CircuitBreaker(name = "huaweicloud-api")
     public TraceResult analyzeTrace(String traceId, long businessId) {
+        requireClient();
         log.info("APM analyzeTrace traceId={} businessId={}", traceId, businessId);
         Timer.Sample sample = Timer.start(meterRegistry);
         try {
@@ -131,11 +140,162 @@ public class ApmAdapter {
                     "service", SERVICE_NAME, "operation", "analyzeTrace"));
         }
     }
-    /** 检查 client 是否可用（区域不支持时为 null）。*/
-    private void requireClient() {
-        if (client == null) {
-            throw new HuaweiCloudException("Apm", "Apm adapter not available in current region", 503, "REGION_NOT_SUPPORTED", null, null);
+
+    /**
+     * 列出指定业务 ID 下的所有应用。
+     *
+     * @param businessId APM 业务 ID
+     * @return 应用列表，每项包含 id、name、businessId、onlineCount、offlineCount 字段
+     * @throws HuaweiCloudException 若 APM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listApps(long businessId) {
+        requireClient();
+        log.info("APM listApps businessId={}", businessId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListAppsRequest()
+                    .withXBusinessId(businessId)
+                    .withBusinessId(businessId);
+            var response = client.listApps(request);
+
+            List<Map<String, String>> apps = new ArrayList<>();
+            if (response.getApps() != null) {
+                for (var app : response.getApps()) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("id", app.getId() != null ? app.getId().toString() : "");
+                    item.put("name", app.getName() != null ? app.getName() : "");
+                    item.put("businessId", app.getBusinessId() != null ? app.getBusinessId().toString() : "");
+                    apps.add(item);
+                }
+            }
+            log.info("APM listApps success businessId={} count={}", businessId, apps.size());
+            return apps;
+        } catch (ServiceResponseException e) {
+            log.error("APM listApps failed businessId={} httpStatus={}", businessId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "APM 应用列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listApps"));
         }
     }
 
+    /**
+     * 列出指定应用下的所有环境（如 dev、staging、prod）。
+     *
+     * @param businessId APM 业务 ID
+     * @param appId      应用 ID
+     * @return 环境列表，每项包含 id、name、appName、region、isDefault 字段
+     * @throws HuaweiCloudException 若 APM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listAppEnvs(long businessId, long appId) {
+        requireClient();
+        log.info("APM listAppEnvs businessId={} appId={}", businessId, appId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListAppEnvsRequest()
+                    .withXBusinessId(businessId)
+                    .withAppId(appId);
+            var response = client.listAppEnvs(request);
+
+            List<Map<String, String>> envs = new ArrayList<>();
+            if (response.getEnvs() != null) {
+                for (var env : response.getEnvs()) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("id", env.getId() != null ? env.getId().toString() : "");
+                    item.put("name", env.getName() != null ? env.getName() : "");
+                    item.put("appName", env.getAppName() != null ? env.getAppName() : "");
+                    item.put("businessName", env.getBusinessName() != null ? env.getBusinessName() : "");
+                    item.put("region", env.getRegion() != null ? env.getRegion() : "");
+                    item.put("isDefault", env.getIsDefault() != null ? env.getIsDefault().toString() : "false");
+                    envs.add(item);
+                }
+            }
+            log.info("APM listAppEnvs success appId={} count={}", appId, envs.size());
+            return envs;
+        } catch (ServiceResponseException e) {
+            log.error("APM listAppEnvs failed appId={} httpStatus={}", appId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "APM 应用环境列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listAppEnvs"));
+        }
+    }
+
+    /**
+     * 列出指定环境下的所有实例（Agent 接入的服务实例）。
+     *
+     * @param businessId APM 业务 ID
+     * @param envId      环境 ID
+     * @param pageSize   每页返回条数（1-100）
+     * @return 实例列表，每项包含 instanceId、instanceName、hostName、ipAddress、instanceStatus、agentVersion 字段
+     * @throws HuaweiCloudException 若 APM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listEnvInstances(long businessId, long envId, int pageSize) {
+        requireClient();
+        int clampedSize = Math.max(1, Math.min(pageSize, 100));
+        log.info("APM listEnvInstances businessId={} envId={}", businessId, envId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var body = new InstanceSearchParam()
+                    .withEnvId(envId)
+                    .withPage(1)
+                    .withPageSize(clampedSize)
+                    .withReturnCount(true);
+
+            var request = new ListEnvInstancesRequest()
+                    .withXBusinessId(businessId)
+                    .withBody(body);
+            var response = client.listEnvInstances(request);
+
+            List<Map<String, String>> instances = new ArrayList<>();
+            if (response.getInstanceInfoList() != null) {
+                for (var inst : response.getInstanceInfoList()) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("instanceId", inst.getInstanceId() != null ? inst.getInstanceId().toString() : "");
+                    item.put("instanceName", inst.getInstanceName() != null ? inst.getInstanceName() : "");
+                    item.put("hostName", inst.getHostName() != null ? inst.getHostName() : "");
+                    item.put("ipAddress", inst.getIpAddress() != null ? inst.getIpAddress() : "");
+                    item.put("appName", inst.getAppName() != null ? inst.getAppName() : "");
+                    item.put("instanceStatus", inst.getInstanceStatus() != null ? inst.getInstanceStatus().toString() : "");
+                    item.put("agentVersion", inst.getAgentVersion() != null ? inst.getAgentVersion() : "");
+                    item.put("lastHeartbeat", inst.getLastHeartbeat() != null ? inst.getLastHeartbeat().toString() : "");
+                    instances.add(item);
+                }
+            }
+            int total = response.getTotalCount() != null ? response.getTotalCount() : 0;
+            int online = response.getOnlineCount() != null ? response.getOnlineCount() : 0;
+            int offline = response.getOfflineCount() != null ? response.getOfflineCount() : 0;
+            log.info("APM listEnvInstances success envId={} total={} online={} offline={}",
+                    envId, total, online, offline);
+            return instances;
+        } catch (ServiceResponseException e) {
+            log.error("APM listEnvInstances failed envId={} httpStatus={}", envId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "APM 环境实例列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listEnvInstances"));
+        }
+    }
+
+    private void requireClient() {
+        if (client == null) {
+            throw new HuaweiCloudException(SERVICE_NAME, "APM adapter not available in current region",
+                    503, "REGION_NOT_SUPPORTED", null, null);
+        }
+    }
 }

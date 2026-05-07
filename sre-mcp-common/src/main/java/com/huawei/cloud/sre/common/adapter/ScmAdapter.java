@@ -5,6 +5,7 @@ import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.scm.v3.ScmClient;
 import com.huaweicloud.sdk.scm.v3.model.ListCertificatesRequest;
+import com.huaweicloud.sdk.scm.v3.model.ShowCertificateRequest;
 import com.huaweicloud.sdk.scm.v3.region.ScmRegion;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -16,6 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,41 +70,6 @@ public class ScmAdapter {
     }
 
     /**
-     * 续期指定域名的 SSL/TLS 证书。
-     *
-     * <p>SCM 本身提供证书托管，续期操作依赖 CA 签发流程。此方法触发续期请求并记录操作。
-     * 实际生产环境需结合 CA 集成（如 Let's Encrypt / CFCA）完成自动签发。
-     *
-     * @param certificateName 证书名称或 ID
-     * @param domain          证书绑定的域名
-     * @return 操作结果描述
-     */
-    public Map<String, String> renewCertificate(String certificateName, String domain) {
-        log.info("SCM renewCertificate cert={} domain={}", certificateName, domain);
-        Timer.Sample sample = Timer.start(meterRegistry);
-        try {
-            // Certificate renewal requires CA integration. This records the intent
-            // and returns the current certificate status for operator action.
-            List<Map<String, String>> certs = listCertificates();
-            String status = certs.stream()
-                    .filter(c -> certificateName.equals(c.get("id")) || certificateName.equals(c.get("name")))
-                    .map(c -> c.get("status"))
-                    .findFirst()
-                    .orElse("not-found");
-            log.info("SCM renewCertificate triggered cert={} domain={} currentStatus={}", certificateName, domain, status);
-            return Map.of(
-                    "status", "renewal-requested",
-                    "certificateName", certificateName,
-                    "domain", domain,
-                    "currentCertStatus", status
-            );
-        } finally {
-            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
-                    "service", SERVICE_NAME, "operation", "renewCertificate"));
-        }
-    }
-
-    /**
      * 列出所有证书信息。
      *
      * @return 证书列表，每项包含 id、name、domain、expireTime、status 字段
@@ -107,6 +78,7 @@ public class ScmAdapter {
     @Retry(name = "huaweicloud-api")
     @CircuitBreaker(name = "huaweicloud-api")
     public List<Map<String, String>> listCertificates() {
+        requireClient();
         log.info("SCM listCertificates");
         Timer.Sample sample = Timer.start(meterRegistry);
         try {
@@ -138,11 +110,128 @@ public class ScmAdapter {
                     "service", SERVICE_NAME, "operation", "listCertificates"));
         }
     }
-    /** 检查 client 是否可用（区域不支持时为 null）。*/
-    private void requireClient() {
-        if (client == null) {
-            throw new HuaweiCloudException("Scm", "Scm adapter not available in current region", 503, "REGION_NOT_SUPPORTED", null, null);
+
+    /**
+     * 查询指定证书的详细信息（含 SAN、签名算法、有效期等）。
+     *
+     * @param certificateId 证书 ID
+     * @return 证书详情 Map
+     * @throws HuaweiCloudException 若 SCM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public Map<String, String> getCertificateDetail(String certificateId) {
+        requireClient();
+        log.info("SCM getCertificateDetail certificateId={}", certificateId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var cert = client.showCertificate(new ShowCertificateRequest().withCertificateId(certificateId));
+
+            Map<String, String> detail = new HashMap<>();
+            detail.put("id", cert.getId() != null ? cert.getId() : "");
+            detail.put("name", cert.getName() != null ? cert.getName() : "");
+            detail.put("domain", cert.getDomain() != null ? cert.getDomain() : "");
+            detail.put("sans", cert.getSans() != null ? cert.getSans() : "");
+            detail.put("notAfter", cert.getNotAfter() != null ? cert.getNotAfter() : "");
+            detail.put("notBefore", cert.getNotBefore() != null ? cert.getNotBefore() : "");
+            detail.put("status", cert.getStatus() != null ? cert.getStatus() : "Unknown");
+            detail.put("signatureAlgorithm", cert.getSignatureAlgorithm() != null ? cert.getSignatureAlgorithm() : "");
+            detail.put("type", cert.getType() != null ? cert.getType() : "");
+            detail.put("brand", cert.getBrand() != null ? cert.getBrand() : "");
+            detail.put("domainType", cert.getDomainType() != null ? cert.getDomainType() : "");
+            detail.put("validityPeriod", cert.getValidityPeriod() != null ? cert.getValidityPeriod().toString() : "");
+            detail.put("validationMethod", cert.getValidationMethod() != null ? cert.getValidationMethod() : "");
+            log.info("SCM getCertificateDetail success certificateId={} status={}", certificateId, detail.get("status"));
+            return detail;
+        } catch (ServiceResponseException e) {
+            log.error("SCM getCertificateDetail failed certificateId={} httpStatus={}", certificateId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "SCM 证书详情查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "getCertificateDetail"));
         }
     }
 
+    /**
+     * 查询即将在指定天数内过期的证书。
+     *
+     * @param daysThreshold 过期天数阈值，如 30 表示查询 30 天内到期的证书
+     * @return 即将过期的证书列表
+     * @throws HuaweiCloudException 若 SCM API 调用失败
+     */
+    public List<Map<String, String>> getExpiringCertificates(int daysThreshold) {
+        requireClient();
+        log.info("SCM getExpiringCertificates daysThreshold={}", daysThreshold);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            List<Map<String, String>> allCerts = listCertificates();
+            Instant cutoff = Instant.now().plusSeconds((long) daysThreshold * 86400);
+
+            List<Map<String, String>> expiring = new ArrayList<>();
+            for (var cert : allCerts) {
+                String expireTime = cert.get("expireTime");
+                if (expireTime == null || expireTime.isEmpty()) {
+                    // The listCertificates uses "expireTime" from the list API
+                    continue;
+                }
+                try {
+                    Instant expiry = Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(expireTime));
+                    if (expiry.isBefore(cutoff)) {
+                        Map<String, String> enriched = new HashMap<>(cert);
+                        long daysLeft = (expiry.getEpochSecond() - Instant.now().getEpochSecond()) / 86400;
+                        enriched.put("daysUntilExpiry", String.valueOf(daysLeft));
+                        expiring.add(enriched);
+                    }
+                } catch (DateTimeParseException ex) {
+                    log.debug("SCM cannot parse expireTime={} for cert={}", expireTime, cert.get("id"));
+                }
+            }
+            log.info("SCM getExpiringCertificates found {} certs expiring within {} days", expiring.size(), daysThreshold);
+            return expiring;
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "getExpiringCertificates"));
+        }
+    }
+
+    /**
+     * 续期指定域名的 SSL/TLS 证书（记录操作意图并返回当前状态）。
+     *
+     * @param certificateName 证书名称或 ID
+     * @param domain          证书绑定的域名
+     * @return 操作结果描述
+     */
+    public Map<String, String> renewCertificate(String certificateName, String domain) {
+        requireClient();
+        log.info("SCM renewCertificate cert={} domain={}", certificateName, domain);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            List<Map<String, String>> certs = listCertificates();
+            String status = certs.stream()
+                    .filter(c -> certificateName.equals(c.get("id")) || certificateName.equals(c.get("name")))
+                    .map(c -> c.get("status"))
+                    .findFirst()
+                    .orElse("not-found");
+            log.info("SCM renewCertificate triggered cert={} domain={} currentStatus={}", certificateName, domain, status);
+            return Map.of(
+                    "status", "renewal-requested",
+                    "certificateName", certificateName,
+                    "domain", domain,
+                    "currentCertStatus", status
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "renewCertificate"));
+        }
+    }
+
+    private void requireClient() {
+        if (client == null) {
+            throw new HuaweiCloudException(SERVICE_NAME, "SCM adapter not available in current region",
+                    503, "REGION_NOT_SUPPORTED", null, null);
+        }
+    }
 }

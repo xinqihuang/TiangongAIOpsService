@@ -7,8 +7,15 @@ import com.huaweicloud.sdk.ecs.v2.EcsClient;
 import com.huaweicloud.sdk.ecs.v2.model.BatchRebootSeversOption;
 import com.huaweicloud.sdk.ecs.v2.model.BatchRebootServersRequest;
 import com.huaweicloud.sdk.ecs.v2.model.BatchRebootServersRequestBody;
+import com.huaweicloud.sdk.ecs.v2.model.BatchStartServersOption;
+import com.huaweicloud.sdk.ecs.v2.model.BatchStartServersRequest;
+import com.huaweicloud.sdk.ecs.v2.model.BatchStartServersRequestBody;
+import com.huaweicloud.sdk.ecs.v2.model.BatchStopServersOption;
+import com.huaweicloud.sdk.ecs.v2.model.BatchStopServersRequest;
+import com.huaweicloud.sdk.ecs.v2.model.BatchStopServersRequestBody;
 import com.huaweicloud.sdk.ecs.v2.model.ListServersDetailsRequest;
 import com.huaweicloud.sdk.ecs.v2.model.ServerId;
+import com.huaweicloud.sdk.ecs.v2.model.ShowServerRequest;
 import com.huaweicloud.sdk.ecs.v2.region.EcsRegion;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -20,13 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 华为云 ECS（弹性云服务器）适配器。
  *
- * <p>提供 ECS 实例查询与重启操作，用于故障自动修复场景。
+ * <p>提供 ECS 实例查询、启停、重启操作，用于故障自动修复与容量管理场景。
  */
 @Component
 public class EcsAdapter {
@@ -76,6 +84,7 @@ public class EcsAdapter {
     @Retry(name = "huaweicloud-api")
     @CircuitBreaker(name = "huaweicloud-api")
     public List<Map<String, String>> listServers() {
+        requireClient();
         log.info("ECS listServers");
         Timer.Sample sample = Timer.start(meterRegistry);
         try {
@@ -107,6 +116,60 @@ public class EcsAdapter {
     }
 
     /**
+     * 查询指定 ECS 实例的详细信息（规格、IP、磁盘、镜像等）。
+     *
+     * @param serverId ECS 实例 ID
+     * @return 实例详情 Map
+     * @throws HuaweiCloudException 若 ECS API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public Map<String, String> getServerDetail(String serverId) {
+        requireClient();
+        log.info("ECS getServerDetail serverId={}", serverId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var response = client.showServer(new ShowServerRequest().withServerId(serverId));
+            var server = response.getServer();
+            if (server == null) {
+                return Map.of("id", serverId, "status", "Not Found");
+            }
+
+            Map<String, String> detail = new HashMap<>();
+            detail.put("id", server.getId() != null ? server.getId() : "");
+            detail.put("name", server.getName() != null ? server.getName() : "");
+            detail.put("status", server.getStatus() != null ? server.getStatus() : "Unknown");
+            detail.put("hostId", server.getHostId() != null ? server.getHostId() : "");
+            detail.put("imageId", server.getImage() != null && server.getImage().getId() != null
+                    ? server.getImage().getId() : "");
+            if (server.getFlavor() != null) {
+                detail.put("flavorId", server.getFlavor().getId() != null ? server.getFlavor().getId() : "");
+                detail.put("flavorName", server.getFlavor().getName() != null ? server.getFlavor().getName() : "");
+                detail.put("vcpus", server.getFlavor().getVcpus() != null ? server.getFlavor().getVcpus() : "");
+                detail.put("ram", server.getFlavor().getRam() != null ? server.getFlavor().getRam().toString() : "");
+            }
+            detail.put("created", server.getCreated() != null ? server.getCreated() : "");
+            detail.put("updated", server.getUpdated() != null ? server.getUpdated() : "");
+            detail.put("availabilityZone", server.getOsEXTAZAvailabilityZone() != null
+                    ? server.getOsEXTAZAvailabilityZone() : "");
+            detail.put("taskState", server.getOsEXTSTSTaskState() != null
+                    ? server.getOsEXTSTSTaskState() : "");
+
+            log.info("ECS getServerDetail success serverId={} status={}", serverId, detail.get("status"));
+            return detail;
+        } catch (ServiceResponseException e) {
+            log.error("ECS getServerDetail failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "ECS 实例详情查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "getServerDetail"));
+        }
+    }
+
+    /**
      * 重启指定 ECS 实例（软重启）。
      *
      * @param serverId ECS 实例 ID
@@ -115,6 +178,7 @@ public class EcsAdapter {
     @Retry(name = "huaweicloud-api")
     @CircuitBreaker(name = "huaweicloud-api")
     public void rebootServer(String serverId) {
+        requireClient();
         log.info("ECS rebootServer serverId={}", serverId);
         Timer.Sample sample = Timer.start(meterRegistry);
         try {
@@ -136,11 +200,115 @@ public class EcsAdapter {
                     "service", SERVICE_NAME, "operation", "rebootServer"));
         }
     }
-    /** 检查 client 是否可用（区域不支持时为 null）。*/
-    private void requireClient() {
-        if (client == null) {
-            throw new HuaweiCloudException("Ecs", "Ecs adapter not available in current region", 503, "REGION_NOT_SUPPORTED", null, null);
+
+    /**
+     * 启动指定 ECS 实例。
+     *
+     * @param serverId ECS 实例 ID
+     * @throws HuaweiCloudException 若 ECS API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public void startServer(String serverId) {
+        requireClient();
+        log.info("ECS startServer serverId={}", serverId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var option = new BatchStartServersOption()
+                    .withServers(List.of(new ServerId().withId(serverId)));
+            var body = new BatchStartServersRequestBody().withOsStart(option);
+            client.batchStartServers(new BatchStartServersRequest().withBody(body));
+            log.info("ECS startServer success serverId={}", serverId);
+        } catch (ServiceResponseException e) {
+            log.error("ECS startServer failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "ECS 实例启动失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "startServer"));
         }
     }
 
+    /**
+     * 关机指定 ECS 实例（软关机）。
+     *
+     * @param serverId ECS 实例 ID
+     * @throws HuaweiCloudException 若 ECS API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public void stopServer(String serverId) {
+        requireClient();
+        log.info("ECS stopServer serverId={}", serverId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var option = new BatchStopServersOption()
+                    .withServers(List.of(new ServerId().withId(serverId)))
+                    .withType(BatchStopServersOption.TypeEnum.SOFT);
+            var body = new BatchStopServersRequestBody().withOsStop(option);
+            client.batchStopServers(new BatchStopServersRequest().withBody(body));
+            log.info("ECS stopServer success serverId={}", serverId);
+        } catch (ServiceResponseException e) {
+            log.error("ECS stopServer failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "ECS 实例关机失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "stopServer"));
+        }
+    }
+
+    /**
+     * 按状态过滤 ECS 实例列表。
+     *
+     * @param status 实例状态，如 ACTIVE、SHUTOFF、ERROR
+     * @return 匹配状态的实例列表
+     * @throws HuaweiCloudException 若 ECS API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listServersByStatus(String status) {
+        requireClient();
+        log.info("ECS listServersByStatus status={}", status);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListServersDetailsRequest().withStatus(status).withLimit(100);
+            var response = client.listServersDetails(request);
+
+            List<Map<String, String>> servers = List.of();
+            if (response.getServers() != null) {
+                servers = response.getServers().stream()
+                        .map(s -> Map.of(
+                                "id", s.getId() != null ? s.getId() : "",
+                                "name", s.getName() != null ? s.getName() : "",
+                                "status", s.getStatus() != null ? s.getStatus() : "Unknown",
+                                "availabilityZone", s.getOsEXTAZAvailabilityZone() != null
+                                        ? s.getOsEXTAZAvailabilityZone() : ""
+                        ))
+                        .toList();
+            }
+            log.info("ECS listServersByStatus success status={} count={}", status, servers.size());
+            return servers;
+        } catch (ServiceResponseException e) {
+            log.error("ECS listServersByStatus failed status={} httpStatus={}", status, e.getHttpStatusCode());
+            throw new HuaweiCloudException(
+                    SERVICE_NAME, "ECS 实例列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
+            );
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listServersByStatus"));
+        }
+    }
+
+    private void requireClient() {
+        if (client == null) {
+            throw new HuaweiCloudException(SERVICE_NAME, "ECS adapter not available in current region",
+                    503, "REGION_NOT_SUPPORTED", null, null);
+        }
+    }
 }

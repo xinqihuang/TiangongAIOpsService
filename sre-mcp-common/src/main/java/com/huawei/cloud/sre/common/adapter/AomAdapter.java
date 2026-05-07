@@ -4,11 +4,14 @@ import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.dto.MetricResult;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
 import com.huaweicloud.sdk.aom.v2.AomClient;
+import com.huaweicloud.sdk.aom.v2.model.DeleteAlarmRuleRequest;
 import com.huaweicloud.sdk.aom.v2.model.Dimension;
 import com.huaweicloud.sdk.aom.v2.model.EventQueryParam2;
+import com.huaweicloud.sdk.aom.v2.model.ListAlarmRuleRequest;
 import com.huaweicloud.sdk.aom.v2.model.ListEventsRequest;
 import com.huaweicloud.sdk.aom.v2.model.MetricQueryMetricParam;
 import com.huaweicloud.sdk.aom.v2.model.QueryMetricDataParam;
+import com.huaweicloud.sdk.aom.v2.model.ShowAlarmRuleRequest;
 import com.huaweicloud.sdk.aom.v2.model.ShowMetricsDataRequest;
 import com.huaweicloud.sdk.aom.v2.region.AomRegion;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
@@ -31,7 +34,8 @@ import java.util.Map;
 /**
  * 华为云 AOM（应用运维管理）适配器。
  *
- * <p>封装 AOM v2 指标查询 API，提供指标时间序列查询、Resilience4j 熔断重试、Micrometer 埋点。
+ * <p>封装 AOM v2 指标查询、告警事件查询与告警规则管理 API，
+ * 提供 Resilience4j 熔断重试与 Micrometer 埋点。
  */
 @Component
 public class AomAdapter {
@@ -141,9 +145,6 @@ public class AomAdapter {
     /**
      * 查询华为云 AOM 当前活跃告警事件列表。
      *
-     * <p>使用 {@code ListEvents} API，类型为 {@code active_alert}，
-     * 时间范围格式为 {@code -1.-1.{recentMinutes}}（相对时间，最近 N 分钟）。
-     *
      * @param recentMinutes 查询最近多少分钟内的活跃告警（1-1440）
      * @return 告警事件列表，每个元素包含 id、startsAt、severity、eventName、service、message 等字段
      * @throws HuaweiCloudException 若 AOM API 调用失败
@@ -155,7 +156,6 @@ public class AomAdapter {
         log.info("AOM listActiveAlarms recentMinutes={}", clampedMinutes);
         Timer.Sample sample = Timer.start(meterRegistry);
         try {
-            // timeRange format: startMillis.endMillis.durationMinutes  (-1 means "use duration")
             var body = new EventQueryParam2()
                     .withTimeRange("-1.-1." + clampedMinutes);
             var request = new ListEventsRequest()
@@ -170,7 +170,6 @@ public class AomAdapter {
                     item.put("id", event.getId());
                     item.put("startsAt", event.getStartsAt());
                     item.put("endsAt", event.getEndsAt());
-                    // metadata contains event_name, event_severity, resource_provider, etc.
                     if (event.getMetadata() != null) {
                         item.put("eventName", event.getMetadata().get("event_name"));
                         item.put("severity", event.getMetadata().get("event_severity"));
@@ -196,6 +195,119 @@ public class AomAdapter {
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
                     "service", SERVICE_NAME, "operation", "listActiveAlarms"));
+        }
+    }
+
+    /**
+     * 列出 AOM 告警规则列表。
+     *
+     * @param limit 最大返回条数（1-1000）
+     * @return 告警规则列表，每项包含 alarmRuleId、alarmRuleName、alarmLevel、namespace、metricName、stateValue 字段
+     * @throws HuaweiCloudException 若 AOM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listAlarmRules(int limit) {
+        int clampedLimit = Math.max(1, Math.min(limit, 1000));
+        log.info("AOM listAlarmRules limit={}", clampedLimit);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListAlarmRuleRequest().withLimit(clampedLimit);
+            var response = client.listAlarmRule(request);
+
+            List<Map<String, String>> rules = new ArrayList<>();
+            if (response.getThresholds() != null) {
+                for (var rule : response.getThresholds()) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("alarmRuleId", rule.getAlarmRuleId() != null ? rule.getAlarmRuleId() : "");
+                    item.put("alarmRuleName", rule.getAlarmRuleName() != null ? rule.getAlarmRuleName() : "");
+                    item.put("alarmLevel", rule.getAlarmLevel() != null ? rule.getAlarmLevel() : "");
+                    item.put("alarmDescription", rule.getAlarmDescription() != null ? rule.getAlarmDescription() : "");
+                    item.put("namespace", rule.getNamespace() != null ? rule.getNamespace() : "");
+                    item.put("metricName", rule.getMetricName() != null ? rule.getMetricName() : "");
+                    item.put("comparisonOperator", rule.getComparisonOperator() != null ? rule.getComparisonOperator() : "");
+                    item.put("stateReason", rule.getStateReason() != null ? rule.getStateReason() : "");
+                    item.put("stateUpdatedAt", rule.getStateUpdatedTimestamp() != null ? rule.getStateUpdatedTimestamp() : "");
+                    item.put("enabled", rule.getIdTurnOn() != null ? rule.getIdTurnOn().toString() : "true");
+                    rules.add(item);
+                }
+            }
+            log.info("AOM listAlarmRules success count={}", rules.size());
+            return rules;
+        } catch (ServiceResponseException e) {
+            log.error("AOM listAlarmRules failed httpStatus={}", e.getHttpStatusCode());
+            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警规则列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listAlarmRules"));
+        }
+    }
+
+    /**
+     * 查询指定告警规则详情。
+     *
+     * @param alarmRuleId 告警规则 ID
+     * @return 告警规则详情 Map
+     * @throws HuaweiCloudException 若 AOM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public Map<String, String> getAlarmRule(String alarmRuleId) {
+        log.info("AOM getAlarmRule alarmRuleId={}", alarmRuleId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ShowAlarmRuleRequest().withAlarmRuleId(alarmRuleId);
+            var response = client.showAlarmRule(request);
+            var thresholds = response.getThresholds();
+
+            Map<String, String> result = new HashMap<>();
+            if (thresholds != null && !thresholds.isEmpty()) {
+                var rule = thresholds.get(0);
+                result.put("alarmRuleId", rule.getAlarmRuleId() != null ? rule.getAlarmRuleId() : "");
+                result.put("alarmRuleName", rule.getAlarmRuleName() != null ? rule.getAlarmRuleName() : "");
+                result.put("alarmLevel", rule.getAlarmLevel() != null ? rule.getAlarmLevel() : "");
+                result.put("alarmDescription", rule.getAlarmDescription() != null ? rule.getAlarmDescription() : "");
+                result.put("namespace", rule.getNamespace() != null ? rule.getNamespace() : "");
+                result.put("metricName", rule.getMetricName() != null ? rule.getMetricName() : "");
+                result.put("stateReason", rule.getStateReason() != null ? rule.getStateReason() : "");
+                result.put("stateUpdatedAt", rule.getStateUpdatedTimestamp() != null ? rule.getStateUpdatedTimestamp() : "");
+                result.put("enabled", rule.getIdTurnOn() != null ? rule.getIdTurnOn().toString() : "true");
+                result.put("alarmActions", rule.getAlarmActions() != null ? String.join(",", rule.getAlarmActions()) : "");
+            }
+            log.info("AOM getAlarmRule success alarmRuleId={}", alarmRuleId);
+            return result;
+        } catch (ServiceResponseException e) {
+            log.error("AOM getAlarmRule failed alarmRuleId={} httpStatus={}", alarmRuleId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警规则查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "getAlarmRule"));
+        }
+    }
+
+    /**
+     * 删除指定告警规则。
+     *
+     * @param alarmRuleId 告警规则 ID
+     * @throws HuaweiCloudException 若 AOM API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public void deleteAlarmRule(String alarmRuleId) {
+        log.info("AOM deleteAlarmRule alarmRuleId={}", alarmRuleId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            client.deleteAlarmRule(new DeleteAlarmRuleRequest().withAlarmRuleId(alarmRuleId));
+            log.info("AOM deleteAlarmRule success alarmRuleId={}", alarmRuleId);
+        } catch (ServiceResponseException e) {
+            log.error("AOM deleteAlarmRule failed alarmRuleId={} httpStatus={}", alarmRuleId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警规则删除失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "deleteAlarmRule"));
         }
     }
 }

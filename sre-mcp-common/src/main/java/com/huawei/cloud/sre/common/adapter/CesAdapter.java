@@ -9,10 +9,13 @@ import com.huaweicloud.sdk.ces.v1.model.BatchMetricData;
 import com.huaweicloud.sdk.ces.v1.model.BatchPeriod;
 import com.huaweicloud.sdk.ces.v1.model.DatapointForBatchMetric;
 import com.huaweicloud.sdk.ces.v1.model.Filter;
+import com.huaweicloud.sdk.ces.v1.model.ListAlarmHistoriesRequest;
+import com.huaweicloud.sdk.ces.v1.model.ListAlarmsRequest;
 import com.huaweicloud.sdk.ces.v1.model.ListMetricsRequest;
 import com.huaweicloud.sdk.ces.v1.model.MetricInfo;
 import com.huaweicloud.sdk.ces.v1.model.MetricInfoList;
 import com.huaweicloud.sdk.ces.v1.model.MetricsDimension;
+import com.huaweicloud.sdk.ces.v1.model.ShowAlarmRequest;
 import com.huaweicloud.sdk.ces.v1.region.CesRegion;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -281,6 +284,151 @@ public class CesAdapter {
                 .map(MetricsDimension::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * 列出当前项目下所有 CES 告警规则。
+     *
+     * @param limit 最大返回条数（1-100）
+     * @return 告警规则列表，每项包含 alarmId、alarmName、alarmState、alarmLevel、alarmEnabled 字段
+     * @throws HuaweiCloudException 若 CES API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> listAlarmRules(int limit) {
+        requireClient();
+        int clampedLimit = Math.max(1, Math.min(limit, 100));
+        log.info("CES listAlarmRules limit={}", clampedLimit);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var request = new ListAlarmsRequest().withLimit(clampedLimit);
+            var response = client.listAlarms(request);
+
+            List<Map<String, String>> rules = new ArrayList<>();
+            if (response.getMetricAlarms() != null) {
+                for (var alarm : response.getMetricAlarms()) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("alarmId", alarm.getAlarmId() != null ? alarm.getAlarmId() : "");
+                    item.put("alarmName", alarm.getAlarmName() != null ? alarm.getAlarmName() : "");
+                    item.put("alarmDescription", alarm.getAlarmDescription() != null ? alarm.getAlarmDescription() : "");
+                    item.put("alarmState", alarm.getAlarmState() != null ? alarm.getAlarmState() : "");
+                    item.put("alarmLevel", alarm.getAlarmLevel() != null ? alarm.getAlarmLevel().toString() : "");
+                    item.put("alarmEnabled", alarm.getAlarmEnabled() != null ? alarm.getAlarmEnabled().toString() : "true");
+                    item.put("alarmType", alarm.getAlarmType() != null ? alarm.getAlarmType() : "");
+                    item.put("updateTime", alarm.getUpdateTime() != null ? alarm.getUpdateTime().toString() : "");
+                    rules.add(item);
+                }
+            }
+            log.info("CES listAlarmRules success count={}", rules.size());
+            return rules;
+        } catch (ServiceResponseException e) {
+            log.error("CES listAlarmRules failed httpStatus={}", e.getHttpStatusCode());
+            throw new HuaweiCloudException(SERVICE_NAME, "CES 告警规则列表查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "listAlarmRules"));
+        }
+    }
+
+    /**
+     * 查询指定告警规则的详细信息。
+     *
+     * @param alarmId 告警规则 ID（如 al12345678901234567890）
+     * @return 告警规则详情 Map
+     * @throws HuaweiCloudException 若 CES API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public Map<String, String> showAlarmRule(String alarmId) {
+        requireClient();
+        log.info("CES showAlarmRule alarmId={}", alarmId);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var response = client.showAlarm(new ShowAlarmRequest().withAlarmId(alarmId));
+
+            Map<String, String> result = new HashMap<>();
+            if (response.getMetricAlarms() != null && !response.getMetricAlarms().isEmpty()) {
+                var alarm = response.getMetricAlarms().get(0);
+                result.put("alarmId", alarm.getAlarmId() != null ? alarm.getAlarmId() : "");
+                result.put("alarmName", alarm.getAlarmName() != null ? alarm.getAlarmName() : "");
+                result.put("alarmDescription", alarm.getAlarmDescription() != null ? alarm.getAlarmDescription() : "");
+                result.put("alarmState", alarm.getAlarmState() != null ? alarm.getAlarmState() : "");
+                result.put("alarmLevel", alarm.getAlarmLevel() != null ? alarm.getAlarmLevel().toString() : "");
+                result.put("alarmEnabled", alarm.getAlarmEnabled() != null ? alarm.getAlarmEnabled().toString() : "true");
+                result.put("alarmType", alarm.getAlarmType() != null ? alarm.getAlarmType() : "");
+                result.put("updateTime", alarm.getUpdateTime() != null ? alarm.getUpdateTime().toString() : "");
+            }
+            log.info("CES showAlarmRule success alarmId={} state={}", alarmId, result.get("alarmState"));
+            return result;
+        } catch (ServiceResponseException e) {
+            log.error("CES showAlarmRule failed alarmId={} httpStatus={}", alarmId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(SERVICE_NAME, "CES 告警规则查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "showAlarmRule"));
+        }
+    }
+
+    /**
+     * 查询告警规则的历史触发记录。
+     *
+     * @param alarmId       告警规则 ID；传 null 则查询所有规则的历史
+     * @param recentMinutes 查询最近多少分钟内的历史（1-1440）
+     * @param limit         最大返回条数（1-100）
+     * @return 历史触发列表，每项包含 alarmId、alarmName、alarmStatus、triggerTime、namespace 字段
+     * @throws HuaweiCloudException 若 CES API 调用失败
+     */
+    @Retry(name = "huaweicloud-api")
+    @CircuitBreaker(name = "huaweicloud-api")
+    public List<Map<String, String>> queryAlarmHistory(String alarmId, int recentMinutes, int limit) {
+        requireClient();
+        int clampedMinutes = Math.max(1, Math.min(recentMinutes, 1440));
+        int clampedLimit = Math.max(1, Math.min(limit, 100));
+        log.info("CES queryAlarmHistory alarmId={} recentMinutes={}", alarmId, clampedMinutes);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            Instant end = Instant.now();
+            Instant start = end.minusSeconds((long) clampedMinutes * 60);
+
+            var request = new ListAlarmHistoriesRequest()
+                    .withFrom(String.valueOf(start.toEpochMilli()))
+                    .withTo(String.valueOf(end.toEpochMilli()))
+                    .withLimit(String.valueOf(clampedLimit));
+            if (alarmId != null) {
+                request.withAlarmId(alarmId);
+            }
+
+            var response = client.listAlarmHistories(request);
+            List<Map<String, String>> histories = new ArrayList<>();
+            if (response.getAlarmHistories() != null) {
+                for (var h : response.getAlarmHistories()) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("alarmId", h.getAlarmId() != null ? h.getAlarmId() : "");
+                    item.put("alarmName", h.getAlarmName() != null ? h.getAlarmName() : "");
+                    item.put("alarmDescription", h.getAlarmDescription() != null ? h.getAlarmDescription() : "");
+                    item.put("alarmStatus", h.getAlarmStatus() != null ? h.getAlarmStatus() : "");
+                    item.put("alarmLevel", h.getAlarmLevel() != null ? h.getAlarmLevel().toString() : "");
+                    item.put("triggerTime", h.getTriggerTime() != null ? h.getTriggerTime().toString() : "");
+                    item.put("updateTime", h.getUpdateTime() != null ? h.getUpdateTime().toString() : "");
+                    if (h.getMetric() != null) {
+                        item.put("namespace", h.getMetric().getNamespace() != null ? h.getMetric().getNamespace() : "");
+                        item.put("metricName", h.getMetric().getMetricName() != null ? h.getMetric().getMetricName() : "");
+                    }
+                    histories.add(item);
+                }
+            }
+            log.info("CES queryAlarmHistory success alarmId={} count={}", alarmId, histories.size());
+            return histories;
+        } catch (ServiceResponseException e) {
+            log.error("CES queryAlarmHistory failed alarmId={} httpStatus={}", alarmId, e.getHttpStatusCode());
+            throw new HuaweiCloudException(SERVICE_NAME, "CES 告警历史查询失败: " + e.getErrorMsg(),
+                    e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
+        } finally {
+            sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
+                    "service", SERVICE_NAME, "operation", "queryAlarmHistory"));
+        }
     }
 
     private void requireClient() {
