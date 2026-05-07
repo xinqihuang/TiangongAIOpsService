@@ -16,7 +16,7 @@
 - **JDK**：OpenJDK 21（启用 Virtual Threads）
 - **构建**：Maven 3.9+
 - **框架**：Spring Boot 3.3.5 + Spring AI MCP 1.0.0（WebMVC 模式）
-- **华为云 SDK**：huaweicloud-sdk-java-v3 3.1.105
+- **华为云 SDK**：huaweicloud-sdk-java-v3 3.1.194
 - **LLM**：vLLM + Qwen2.5-72B（OpenAI 兼容协议）
 - **存储**：PostgreSQL 15、Redis 7、Kafka 3.x
 - **可观测性**：Micrometer + OpenTelemetry + Prometheus
