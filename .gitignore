@@ -24,5 +24,8 @@ logs/
 # Sensitive local config — use environment variables instead
 # application-local.yml is committed as a template (credentials via env vars)
 
+# Accidentally created root-level SDK source files
+com/
+
 # Claude Code
 .claude/settings.local.json
