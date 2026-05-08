@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.ces.v1.CesClient;
 import com.huaweicloud.sdk.ces.v1.model.BatchListMetricDataRequest;
 import com.huaweicloud.sdk.ces.v1.model.BatchListMetricDataRequestBody;
@@ -147,7 +148,7 @@ public class CesAdapter {
         } catch (ServiceResponseException e) {
             log.error("CES listInstances failed namespace={} metric={} httpStatus={}",
                     namespace, metricName, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "CES 实例列表查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.ces.instance.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -269,7 +270,7 @@ public class CesAdapter {
         } catch (ServiceResponseException e) {
             log.error("CES batchQueryAverage failed namespace={} metric={} httpStatus={}",
                     namespace, metricName, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "CES 批量指标查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.ces.metric.query", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -323,7 +324,7 @@ public class CesAdapter {
             return rules;
         } catch (ServiceResponseException e) {
             log.error("CES listAlarmRules failed httpStatus={}", e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "CES 告警规则列表查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.ces.alarm.rule.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -363,7 +364,7 @@ public class CesAdapter {
             return result;
         } catch (ServiceResponseException e) {
             log.error("CES showAlarmRule failed alarmId={} httpStatus={}", alarmId, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "CES 告警规则查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.ces.alarm.rule.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -423,7 +424,7 @@ public class CesAdapter {
             return histories;
         } catch (ServiceResponseException e) {
             log.error("CES queryAlarmHistory failed alarmId={} httpStatus={}", alarmId, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "CES 告警历史查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.ces.alarm.history", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",

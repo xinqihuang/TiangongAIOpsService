@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.scm.v3.ScmClient;
 import com.huaweicloud.sdk.scm.v3.model.ListCertificatesRequest;
@@ -102,7 +103,7 @@ public class ScmAdapter {
         } catch (ServiceResponseException e) {
             log.error("SCM listCertificates failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SCM 证书列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.scm.cert.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -146,7 +147,7 @@ public class ScmAdapter {
         } catch (ServiceResponseException e) {
             log.error("SCM getCertificateDetail failed certificateId={} httpStatus={}", certificateId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SCM 证书详情查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.scm.cert.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

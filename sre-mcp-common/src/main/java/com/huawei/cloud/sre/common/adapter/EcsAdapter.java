@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.ecs.v2.EcsClient;
 import com.huaweicloud.sdk.ecs.v2.model.BatchRebootSeversOption;
@@ -106,7 +107,7 @@ public class EcsAdapter {
         } catch (ServiceResponseException e) {
             log.error("ECS listServers failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ECS 实例列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.ecs.instance.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -160,7 +161,7 @@ public class EcsAdapter {
         } catch (ServiceResponseException e) {
             log.error("ECS getServerDetail failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ECS 实例详情查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.ecs.instance.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -192,7 +193,7 @@ public class EcsAdapter {
         } catch (ServiceResponseException e) {
             log.error("ECS rebootServer failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ECS 实例重启失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.ecs.instance.reboot", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -222,7 +223,7 @@ public class EcsAdapter {
         } catch (ServiceResponseException e) {
             log.error("ECS startServer failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ECS 实例启动失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.ecs.instance.start", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -253,7 +254,7 @@ public class EcsAdapter {
         } catch (ServiceResponseException e) {
             log.error("ECS stopServer failed serverId={} httpStatus={}", serverId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ECS 实例关机失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.ecs.instance.stop", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -296,7 +297,7 @@ public class EcsAdapter {
         } catch (ServiceResponseException e) {
             log.error("ECS listServersByStatus failed status={} httpStatus={}", status, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ECS 实例列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.ecs.instance.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

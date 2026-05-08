@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.monitor.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huawei.cloud.sre.monitor.dto.AlertHandlingResult;
 import com.huawei.cloud.sre.monitor.dto.EmergencyPlan;
 import org.slf4j.Logger;
@@ -213,7 +214,8 @@ public class EmergencyPlanService {
         cleaned = cleaned.strip();
 
         Map<String, Object> map = objectMapper.readValue(cleaned, Map.class);
-        List<String> steps = (List<String>) map.getOrDefault("responseSteps", List.of("通知值班工程师"));
+        List<String> steps = (List<String>) map.getOrDefault("responseSteps",
+                List.of(Messages.get("monitor.fallback.llm.default")));
         boolean escalate = Boolean.parseBoolean(String.valueOf(map.getOrDefault("escalationRequired", "false")));
 
         return new AlertHandlingResult(
@@ -236,10 +238,10 @@ public class EmergencyPlanService {
                 "Emergency Response (LLM unavailable)",
                 0.0,
                 List.of(
-                        "立即通知值班工程师",
-                        "检查 " + service + " 服务状态（Pod / 进程 / 连接）",
-                        "查看最近 30 分钟告警与日志",
-                        "若 5 分钟内无法定位原因，启动战时流程"
+                        Messages.get("monitor.fallback.step1"),
+                        Messages.get("monitor.fallback.step2", service),
+                        Messages.get("monitor.fallback.step3"),
+                        Messages.get("monitor.fallback.step4")
                 ),
                 "LLM inference failed: " + errorMsg + ". Using default escalation steps.",
                 "Unknown — manual investigation required",

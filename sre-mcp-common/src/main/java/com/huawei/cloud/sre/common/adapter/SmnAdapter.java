@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.smn.v2.SmnClient;
 import com.huaweicloud.sdk.smn.v2.model.AddSubscriptionRequest;
@@ -103,7 +104,7 @@ public class SmnAdapter {
         } catch (ServiceResponseException e) {
             log.error("SMN publishMessage failed topicUrn={} httpStatus={}", topicUrn, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SMN 消息发布失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.smn.message.publish", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -146,7 +147,7 @@ public class SmnAdapter {
         } catch (ServiceResponseException e) {
             log.error("SMN listTopics failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SMN 主题列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.smn.topic.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -180,7 +181,7 @@ public class SmnAdapter {
         } catch (ServiceResponseException e) {
             log.error("SMN createTopic failed name={} httpStatus={}", name, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SMN 主题创建失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.smn.topic.create", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -220,7 +221,7 @@ public class SmnAdapter {
         } catch (ServiceResponseException e) {
             log.error("SMN createSubscription failed topicUrn={} httpStatus={}", topicUrn, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SMN 订阅创建失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.smn.subscription.create", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -263,7 +264,7 @@ public class SmnAdapter {
         } catch (ServiceResponseException e) {
             log.error("SMN listSubscriptions failed topicUrn={} httpStatus={}", topicUrn, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "SMN 订阅列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.smn.subscription.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

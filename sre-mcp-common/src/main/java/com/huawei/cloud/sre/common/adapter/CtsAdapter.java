@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.cts.v3.CtsClient;
 import com.huaweicloud.sdk.cts.v3.model.ListTracesRequest;
@@ -111,7 +112,7 @@ public class CtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("CTS queryTraces failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CTS 审计事件查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cts.trace.query", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -153,7 +154,7 @@ public class CtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("CTS queryByUser failed userName={} httpStatus={}", userName, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CTS 用户审计事件查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cts.trace.user", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -203,7 +204,7 @@ public class CtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("CTS queryResourceChanges failed resourceType={} httpStatus={}", resourceType, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CTS 资源变更事件查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cts.resource.change", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -243,7 +244,7 @@ public class CtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("CTS listTrackers failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CTS 追踪器列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cts.tracker.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

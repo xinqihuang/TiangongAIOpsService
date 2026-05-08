@@ -108,12 +108,12 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键（相同 key 的重复调用直接返回上次结果）
      * @return 修复执行结果
      */
-    @Tool(description = "重启 CCE 集群中的指定 Pod（低风险），适用于内存泄漏/进程假死/OOM 场景")
+    @Tool(description = "Restart a Pod in the CCE cluster (low risk). Suitable for memory leak, process hang, or OOM scenarios.")
     public RemediationResult restartPod(
-            @ToolParam(description = "Kubernetes 命名空间，如 default") String namespace,
-            @ToolParam(description = "Pod 名称或前缀，如 order-service-abc12") String podName,
-            @ToolParam(description = "重启原因（用于审计）") String reason,
-            @ToolParam(description = "幂等键，相同 key 重复调用返回上次结果") String idempotencyKey
+            @ToolParam(description = "Kubernetes namespace, e.g. default") String namespace,
+            @ToolParam(description = "Pod name or prefix, e.g. order-service-abc12") String podName,
+            @ToolParam(description = "Restart reason (for audit log)") String reason,
+            @ToolParam(description = "Idempotency key; repeated calls with the same key return the previous result") String idempotencyKey
     ) {
         log.info("Tool[restartPod] namespace={} pod={}", namespace, podName);
         return executeWithGuards("restartPod", podName, "LOW", idempotencyKey, () -> {
@@ -143,13 +143,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果
      */
-    @Tool(description = "调整 CCE Deployment 副本数（低风险），用于快速扩缩容应对流量变化")
+    @Tool(description = "Adjust the replica count of a CCE Deployment (low risk). Use for rapid scale-out or scale-in in response to traffic changes.")
     public RemediationResult scaleDeployment(
-            @ToolParam(description = "命名空间") String namespace,
-            @ToolParam(description = "Deployment 名称") String deploymentName,
-            @ToolParam(description = "目标副本数（1-50）") int replicas,
-            @ToolParam(description = "变更原因") String reason,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "Kubernetes namespace") String namespace,
+            @ToolParam(description = "Deployment name") String deploymentName,
+            @ToolParam(description = "Target replica count, range 1-50") int replicas,
+            @ToolParam(description = "Reason for the change") String reason,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[scaleDeployment] deployment={} replicas={}", deploymentName, replicas);
         int safeReplicas = Math.max(1, Math.min(50, replicas));
@@ -179,12 +179,12 @@ public class RemediationToolService {
      * @param idempotencyKey  幂等键
      * @return 修复执行结果
      */
-    @Tool(description = "续期即将过期的 SSL/TLS 证书（低风险），适用于证书过期告警场景")
+    @Tool(description = "Renew an expiring SSL/TLS certificate (low risk). Suitable for certificate expiry alert scenarios.")
     public RemediationResult renewCertificate(
-            @ToolParam(description = "证书名称或 ID（华为云 SCM 中的证书标识）") String certificateName,
-            @ToolParam(description = "证书绑定的域名，如 api.example.com") String domain,
-            @ToolParam(description = "续期原因") String reason,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "Certificate name or ID as shown in Huawei Cloud SCM") String certificateName,
+            @ToolParam(description = "Domain bound to the certificate, e.g. api.example.com") String domain,
+            @ToolParam(description = "Renewal reason") String reason,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[renewCertificate] cert={} domain={}", certificateName, domain);
         return executeWithGuards("renewCertificate", certificateName, "LOW", idempotencyKey, () -> {
@@ -218,13 +218,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果（若未通过审批则返回 PENDING_APPROVAL 状态）
      */
-    @Tool(description = "清理 ECS 磁盘空间（中风险，需单人审批），适用于磁盘使用率超阈值场景")
+    @Tool(description = "Clean ECS disk space (medium risk, requires single-person approval). Suitable for disk usage threshold breach scenarios.")
     public RemediationResult cleanDisk(
-            @ToolParam(description = "ECS 实例 ID") String instanceId,
-            @ToolParam(description = "清理路径，如 /var/log 或 /tmp") String targetPath,
-            @ToolParam(description = "审批人用户名") String approver,
-            @ToolParam(description = "清理原因") String reason,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "ECS instance ID") String instanceId,
+            @ToolParam(description = "Target cleanup path, e.g. /var/log or /tmp") String targetPath,
+            @ToolParam(description = "Approver username") String approver,
+            @ToolParam(description = "Cleanup reason") String reason,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[cleanDisk] instance={} path={}", instanceId, targetPath);
         return executeWithGuards("cleanDisk", instanceId, "MEDIUM", idempotencyKey, () -> {
@@ -249,13 +249,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果
      */
-    @Tool(description = "调整数据库连接池大小（中风险，需单人审批），适用于连接池耗尽场景")
+    @Tool(description = "Adjust the database connection pool size (medium risk, requires single-person approval). Suitable for connection pool exhaustion scenarios.")
     public RemediationResult adjustConnectionPool(
-            @ToolParam(description = "服务名称，如 order-service") String service,
-            @ToolParam(description = "新连接池大小（5-500）") int poolSize,
-            @ToolParam(description = "审批人用户名") String approver,
-            @ToolParam(description = "调整原因") String reason,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "Service name, e.g. order-service") String service,
+            @ToolParam(description = "New connection pool size, range 5-500") int poolSize,
+            @ToolParam(description = "Approver username") String approver,
+            @ToolParam(description = "Adjustment reason") String reason,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[adjustConnectionPool] service={} poolSize={}", service, poolSize);
         int safeSize = Math.max(5, Math.min(500, poolSize));
@@ -281,13 +281,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果
      */
-    @Tool(description = "切换 ELB 流量到备用后端（中风险，需单人审批），用于蓝绿切换/灰度回退")
+    @Tool(description = "Switch ELB traffic to a backup backend (medium risk, requires single-person approval). Use for blue-green switching or canary rollback.")
     public RemediationResult switchTraffic(
-            @ToolParam(description = "ELB 实例 ID") String elbId,
-            @ToolParam(description = "目标后端地址，如 backend-v2.internal:8080") String targetBackend,
-            @ToolParam(description = "切换流量百分比（1-100）") int trafficPercent,
-            @ToolParam(description = "审批人用户名") String approver,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "ELB instance ID") String elbId,
+            @ToolParam(description = "Target backend address, e.g. backend-v2.internal:8080") String targetBackend,
+            @ToolParam(description = "Traffic percentage to switch, range 1-100") int trafficPercent,
+            @ToolParam(description = "Approver username") String approver,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[switchTraffic] elb={} backend={} percent={}", elbId, targetBackend, trafficPercent);
         return executeWithGuards("switchTraffic", elbId, "MEDIUM", idempotencyKey, () -> {
@@ -317,13 +317,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果（PENDING_APPROVAL 直到双人批准）
      */
-    @Tool(description = "替换故障节点（高风险，需工单+双人审批），适用于节点崩溃/硬件故障场景")
+    @Tool(description = "Replace a failed node (high risk, requires ticket + dual-person approval). Suitable for node crash or hardware failure scenarios.")
     public RemediationResult replaceNode(
-            @ToolParam(description = "ECS 实例 ID 或 CCE 节点 ID") String nodeId,
-            @ToolParam(description = "第一审批人用户名") String approver1,
-            @ToolParam(description = "第二审批人用户名") String approver2,
-            @ToolParam(description = "替换原因") String reason,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "ECS instance ID or CCE node ID") String nodeId,
+            @ToolParam(description = "First approver username") String approver1,
+            @ToolParam(description = "Second approver username") String approver2,
+            @ToolParam(description = "Replacement reason") String reason,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[replaceNode] nodeId={}", nodeId);
         return executeWithGuards("replaceNode", nodeId, "HIGH", idempotencyKey, () -> {
@@ -349,13 +349,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果
      */
-    @Tool(description = "执行 RDS 数据库主备切换（高风险，需工单+双人审批），适用于主库故障场景")
+    @Tool(description = "Perform an RDS primary-standby failover (high risk, requires ticket + dual-person approval). Suitable for primary database failure scenarios.")
     public RemediationResult dbFailover(
-            @ToolParam(description = "RDS 实例 ID") String instanceId,
-            @ToolParam(description = "第一审批人用户名") String approver1,
-            @ToolParam(description = "第二审批人用户名") String approver2,
-            @ToolParam(description = "切换原因") String reason,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "RDS instance ID") String instanceId,
+            @ToolParam(description = "First approver username") String approver1,
+            @ToolParam(description = "Second approver username") String approver2,
+            @ToolParam(description = "Failover reason") String reason,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[dbFailover] instanceId={}", instanceId);
         return executeWithGuards("dbFailover", instanceId, "HIGH", idempotencyKey, () -> {
@@ -381,13 +381,13 @@ public class RemediationToolService {
      * @param idempotencyKey 幂等键
      * @return 修复执行结果
      */
-    @Tool(description = "回滚服务到指定版本（高风险，需工单+双人审批），适用于新版本故障紧急回退")
+    @Tool(description = "Roll back a service to a specified version (high risk, requires ticket + dual-person approval). Use for emergency rollback when a new release causes failures.")
     public RemediationResult rollbackRelease(
-            @ToolParam(description = "服务名称") String service,
-            @ToolParam(description = "目标回滚版本，如 v1.2.3") String targetVersion,
-            @ToolParam(description = "第一审批人用户名") String approver1,
-            @ToolParam(description = "第二审批人用户名") String approver2,
-            @ToolParam(description = "幂等键") String idempotencyKey
+            @ToolParam(description = "Service name") String service,
+            @ToolParam(description = "Target rollback version, e.g. v1.2.3") String targetVersion,
+            @ToolParam(description = "First approver username") String approver1,
+            @ToolParam(description = "Second approver username") String approver2,
+            @ToolParam(description = "Idempotency key") String idempotencyKey
     ) {
         log.info("Tool[rollbackRelease] service={} version={}", service, targetVersion);
         return executeWithGuards("rollbackRelease", service, "HIGH", idempotencyKey, () -> {
@@ -416,10 +416,10 @@ public class RemediationToolService {
      * @param targetService      目标服务名（可选，用于过滤策略）
      * @return SOP 策略匹配结果，含推荐 Tool、风险级别、执行步骤
      */
-    @Tool(description = "根据故障症状从 SOP 策略库匹配最合适的修复策略，应在执行修复前首先调用")
+    @Tool(description = "Match the most suitable remediation strategy from the SOP library based on fault symptoms. Should be called before executing any remediation action.")
     public StrategyMatch matchStrategy(
-            @ToolParam(description = "故障症状描述（自然语言）") String symptomDescription,
-            @ToolParam(description = "目标服务名（可选过滤）") String targetService
+            @ToolParam(description = "Fault symptom description in natural language") String symptomDescription,
+            @ToolParam(description = "Target service name for optional filtering") String targetService
     ) {
         log.info("Tool[matchStrategy] symptom={} service={}", symptomDescription, targetService);
         StrategyMatch match = strategyMatcher.matchStrategy(symptomDescription, targetService);
@@ -435,11 +435,11 @@ public class RemediationToolService {
      * @param context       执行上下文描述（如 "production environment, peak hours"）
      * @return 风险评估结果，含风险评分、审批要求、预计影响
      */
-    @Tool(description = "评估修复操作风险，返回风险评分/审批要求/预计影响，帮助决策是否执行")
+    @Tool(description = "Assess the risk of a remediation action. Returns a risk score, approval requirements, and estimated impact to help decide whether to proceed.")
     public RiskAssessment assessRisk(
-            @ToolParam(description = "修复操作名称，如 restartPod、dbFailover") String action,
-            @ToolParam(description = "目标服务名") String targetService,
-            @ToolParam(description = "执行上下文，如 production/peak-hours") String context
+            @ToolParam(description = "Remediation action name, e.g. restartPod, dbFailover") String action,
+            @ToolParam(description = "Target service name") String targetService,
+            @ToolParam(description = "Execution context, e.g. production/peak-hours") String context
     ) {
         log.info("Tool[assessRisk] action={} service={}", action, targetService);
         RiskAssessment assessment = strategyMatcher.assessRisk(action, targetService, context);
@@ -456,12 +456,12 @@ public class RemediationToolService {
      * @param note       审批意见
      * @return 审批后的工单状态
      */
-    @Tool(description = "提交修复工单审批意见（APPROVE/REJECT），所有审批人批准后工单自动进入执行阶段")
+    @Tool(description = "Submit an approval decision (APPROVE/REJECT) for a remediation ticket. Once all required approvers approve, the ticket automatically moves to the execution phase.")
     public Map<String, Object> requestApproval(
-            @ToolParam(description = "修复工单 ID") String contextId,
-            @ToolParam(description = "审批人用户名") String approver,
-            @ToolParam(description = "审批决定：APPROVE 或 REJECT") String decision,
-            @ToolParam(description = "审批意见") String note
+            @ToolParam(description = "Remediation ticket ID") String contextId,
+            @ToolParam(description = "Approver username") String approver,
+            @ToolParam(description = "Approval decision: APPROVE or REJECT") String decision,
+            @ToolParam(description = "Approval note") String note
     ) {
         log.info("Tool[requestApproval] contextId={} approver={} decision={}", contextId, approver, decision);
         try {
@@ -489,12 +489,12 @@ public class RemediationToolService {
      * @param expectedValue 期望值（如 "0" 表示重启次数为 0）
      * @return 验证结果（含是否通过、当前值、建议）
      */
-    @Tool(description = "验证修复操作是否生效，检查关键指标确认修复结果，并更新工单状态")
+    @Tool(description = "Verify that a remediation action took effect by checking key metrics and update the ticket status accordingly.")
     public Map<String, Object> verifyRemediation(
-            @ToolParam(description = "修复工单 ID") String contextId,
-            @ToolParam(description = "目标服务名") String service,
-            @ToolParam(description = "验证指标名称，如 pod_restart_count") String checkMetric,
-            @ToolParam(description = "期望值，如 \"0\" 表示无重启") String expectedValue
+            @ToolParam(description = "Remediation ticket ID") String contextId,
+            @ToolParam(description = "Target service name") String service,
+            @ToolParam(description = "Verification metric name, e.g. pod_restart_count") String checkMetric,
+            @ToolParam(description = "Expected value, e.g. \"0\" means zero restarts") String expectedValue
     ) {
         log.info("Tool[verifyRemediation] contextId={} metric={} expected={}", contextId, checkMetric, expectedValue);
         try {
@@ -531,11 +531,11 @@ public class RemediationToolService {
      * @param requestedBy 发起回滚的用户名
      * @return 回滚操作结果
      */
-    @Tool(description = "回滚已执行的修复操作，将工单推进到 ROLLING_BACK 状态，用于修复引发次生问题时")
+    @Tool(description = "Roll back an executed remediation action, advancing the ticket to ROLLING_BACK state. Use when the remediation causes secondary issues.")
     public Map<String, Object> rollbackAction(
-            @ToolParam(description = "修复工单 ID") String contextId,
-            @ToolParam(description = "回滚原因") String reason,
-            @ToolParam(description = "发起回滚的用户名") String requestedBy
+            @ToolParam(description = "Remediation ticket ID") String contextId,
+            @ToolParam(description = "Rollback reason") String reason,
+            @ToolParam(description = "Username of the person initiating the rollback") String requestedBy
     ) {
         log.info("Tool[rollbackAction] contextId={} by={}", contextId, requestedBy);
         try {

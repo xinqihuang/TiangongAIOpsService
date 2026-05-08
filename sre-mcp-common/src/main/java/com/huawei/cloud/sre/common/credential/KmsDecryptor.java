@@ -1,6 +1,7 @@
 package com.huawei.cloud.sre.common.credential;
 
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.auth.BasicCredentials;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.kms.v2.KmsClient;
@@ -68,7 +69,7 @@ public class KmsDecryptor {
         } catch (ServiceResponseException e) {
             throw new HuaweiCloudException(
                     "KMS",
-                    "KMS 解密失败: " + e.getErrorMsg(),
+                    Messages.get("err.kms.decrypt", e.getErrorMsg()),
                     e.getHttpStatusCode(),
                     e.getErrorCode(),
                     e.getRequestId(),

@@ -1,6 +1,7 @@
 package com.huawei.cloud.sre.monitor.scheduler;
 
 import com.huawei.cloud.sre.common.adapter.CesAdapter;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huawei.cloud.sre.monitor.dto.AlertHandlingResult;
 import com.huawei.cloud.sre.monitor.dto.MemoryAlert;
 import com.huawei.cloud.sre.monitor.service.EmergencyPlanService;
@@ -200,11 +201,9 @@ public class MemoryMonitorScheduler {
     }
 
     private String buildAlertDescription(ComponentConfig comp, CesAdapter.InstanceMetricValue instance) {
-        return String.format(
-                "%s 内存使用率高告警 | namespace=%s metric=%s instance=%s value=%.1f%% threshold=%.1f%%",
+        return Messages.get("monitor.memory.alert.description",
                 comp.type(), comp.namespace(), comp.metricName(),
-                instance.instanceId(), instance.value(), threshold
-        );
+                instance.instanceId(), instance.value(), threshold);
     }
 
     private String severityOf(double memPercent) {

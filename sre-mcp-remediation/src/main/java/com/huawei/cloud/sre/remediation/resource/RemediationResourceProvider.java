@@ -74,7 +74,7 @@ public class RemediationResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://remediation/active-contexts",
                 "Active Remediation Contexts",
-                "当前所有活跃的修复工单，含状态、风险级别、目标服务",
+                "All currently active remediation contexts, including state, risk level, and target service",
                 "application/json",
                 null
         );
@@ -117,7 +117,7 @@ public class RemediationResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://remediation/sop-library",
                 "SOP Strategy Library",
-                "SOP 策略库概览：所有已注册的修复策略，含适用症状、风险级别、预计耗时",
+                "SOP strategy library overview: all registered remediation strategies with applicable symptoms, risk level, and estimated duration",
                 "application/json",
                 null
         );
@@ -155,7 +155,7 @@ public class RemediationResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://remediation/approval-queue",
                 "Approval Queue",
-                "待审批的修复工单队列，含工单 ID、风险级别、审批人列表",
+                "Queue of remediation contexts pending approval, including context ID, risk level, and approver list",
                 "application/json",
                 null
         );
@@ -194,7 +194,7 @@ public class RemediationResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://remediation/execution-history",
                 "Execution History",
-                "最近 20 条修复执行历史，含执行结果、耗时、风险级别",
+                "Most recent 20 remediation execution records, including result, duration, and risk level",
                 "application/json",
                 null
         );

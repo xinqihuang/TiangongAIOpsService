@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.rds.v3.RdsClient;
 import com.huaweicloud.sdk.rds.v3.model.ListBackupsRequest;
@@ -106,7 +107,7 @@ public class RdsAdapter {
         } catch (ServiceResponseException e) {
             log.error("RDS listInstances failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "RDS 实例列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.rds.instance.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -147,7 +148,7 @@ public class RdsAdapter {
         } catch (ServiceResponseException e) {
             log.error("RDS getInstance failed instanceId={} httpStatus={}", instanceId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "RDS 实例查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.rds.instance.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -200,7 +201,7 @@ public class RdsAdapter {
         } catch (ServiceResponseException e) {
             log.error("RDS listErrorLogs failed instanceId={} httpStatus={}", instanceId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "RDS 错误日志查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.rds.error.log", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -259,7 +260,7 @@ public class RdsAdapter {
         } catch (ServiceResponseException e) {
             log.error("RDS listSlowLogs failed instanceId={} httpStatus={}", instanceId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "RDS 慢查询日志查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.rds.slow.log", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -310,7 +311,7 @@ public class RdsAdapter {
         } catch (ServiceResponseException e) {
             log.error("RDS listBackups failed instanceId={} httpStatus={}", instanceId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "RDS 备份列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.rds.backup.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

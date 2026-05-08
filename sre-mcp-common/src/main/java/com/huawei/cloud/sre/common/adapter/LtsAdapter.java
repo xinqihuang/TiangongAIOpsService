@@ -3,6 +3,7 @@ package com.huawei.cloud.sre.common.adapter;
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.dto.LogSearchResult;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.lts.v2.LtsClient;
 import com.huaweicloud.sdk.lts.v2.model.ListLogGroupsRequest;
@@ -130,7 +131,7 @@ public class LtsAdapter {
             log.error("LTS searchLogs failed service={} keyword={} httpStatus={} errorCode={}",
                     service, keyword, e.getHttpStatusCode(), e.getErrorCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "LTS 日志搜索失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.lts.log.search", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -170,7 +171,7 @@ public class LtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("LTS listLogGroups failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "LTS 日志组列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.lts.loggroup.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -212,7 +213,7 @@ public class LtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("LTS listLogStreams failed logGroupId={} httpStatus={}", groupId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "LTS 日志流列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.lts.logstream.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -276,7 +277,7 @@ public class LtsAdapter {
         } catch (ServiceResponseException e) {
             log.error("LTS searchLogsByStream failed logStreamId={} httpStatus={}", logStreamId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "LTS 日志搜索失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.lts.log.search", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

@@ -1,5 +1,6 @@
 package com.huawei.cloud.sre.common.exception;
 
+import com.huawei.cloud.sre.common.util.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -55,7 +56,7 @@ public class GlobalExceptionHandler {
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_GATEWAY,
-                String.format("华为云 %s 服务调用失败: %s", ex.getService(), ex.getMessage())
+                Messages.get("err.huaweicloud.service.call", ex.getService(), ex.getMessage())
         );
         problem.setType(URI.create(ERROR_TYPE_BASE + "huaweicloud-api-error"));
         problem.setTitle("HuaweiCloud API Error");
@@ -91,7 +92,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected exception: {}", ex.getMessage(), ex);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "服务内部错误，请稍后重试"
+                Messages.get("err.internal.service")
         );
         problem.setType(URI.create(ERROR_TYPE_BASE + "internal-error"));
         problem.setTitle("Internal Server Error");

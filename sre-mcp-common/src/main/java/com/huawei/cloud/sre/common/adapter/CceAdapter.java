@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.cce.v3.CceClient;
 import com.huaweicloud.sdk.cce.v3.model.ListClustersRequest;
 import com.huaweicloud.sdk.cce.v3.model.ListNodePoolsRequest;
@@ -106,7 +107,7 @@ public class CceAdapter {
         } catch (ServiceResponseException e) {
             log.error("CCE getClusterInfo failed clusterId={} httpStatus={}", clusterId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CCE 集群查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cce.cluster.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -149,7 +150,7 @@ public class CceAdapter {
         } catch (ServiceResponseException e) {
             log.error("CCE listClusters failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CCE 集群列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cce.cluster.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -203,7 +204,7 @@ public class CceAdapter {
         } catch (ServiceResponseException e) {
             log.error("CCE listNodePools failed clusterId={} httpStatus={}", clusterId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CCE 节点池列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cce.nodepool.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -299,7 +300,7 @@ public class CceAdapter {
         } catch (ServiceResponseException e) {
             log.error("CCE listNodes failed clusterId={} httpStatus={}", clusterId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "CCE 节点列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.cce.node.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

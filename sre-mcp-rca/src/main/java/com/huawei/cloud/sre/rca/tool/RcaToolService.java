@@ -94,16 +94,16 @@ public class RcaToolService {
      * @return 时序指标数据，含数据点列表及统计信息
      */
     @Tool(description = """
-            查询华为云 AOM（应用运维管理）的性能指标时间序列数据。
-            可查询 CPU 使用率、内存使用率、HTTP QPS、错误率等指标。
-            返回指定时间范围内的采样数据点，用于分析服务性能异常。
+            Query AOM (Application Operations Management) metric time-series data for a service.
+            Supports CPU usage, memory usage, HTTP QPS, error rate and other metrics.
+            Returns sampled data points in the specified time range for performance anomaly analysis.
             """)
     public MetricResult queryMetrics(
-            @ToolParam(description = "目标服务名，如 user-service、order-service") String service,
-            @ToolParam(description = "指标名称，如 cpu_usage_idle、mem_usage、http_requests_per_second") String metric,
-            @ToolParam(description = "查询开始时间，ISO-8601 格式，如 2025-01-01T00:00:00Z") String startTime,
-            @ToolParam(description = "查询结束时间，ISO-8601 格式") String endTime,
-            @ToolParam(description = "采样间隔（秒），常用值 60 或 300，默认 60") int periodSecs
+            @ToolParam(description = "Target service name, e.g. user-service, order-service") String service,
+            @ToolParam(description = "Metric name, e.g. cpu_usage_idle, mem_usage, http_requests_per_second") String metric,
+            @ToolParam(description = "Query start time in ISO-8601 format, e.g. 2025-01-01T00:00:00Z") String startTime,
+            @ToolParam(description = "Query end time in ISO-8601 format") String endTime,
+            @ToolParam(description = "Sampling interval in seconds, common values: 60 or 300, default 60") int periodSecs
     ) {
         log.info("Tool[queryMetrics] service={} metric={} start={} end={}", service, metric, startTime, endTime);
         try {
@@ -136,16 +136,16 @@ public class RcaToolService {
      * @return 日志搜索结果，含匹配条目及错误计数
      */
     @Tool(description = """
-            在华为云 LTS（日志服务）中搜索指定服务的日志。
-            支持关键词精确匹配和正则表达式搜索。
-            返回匹配的日志条目，含时间戳、日志级别、Trace ID 等结构化信息。
-            用于定位错误日志、异常堆栈、超时警告等故障现象。
+            Search logs for a service in LTS (Log Tank Service).
+            Supports exact keyword matching and regular expression search.
+            Returns matching log entries with timestamp, log level, Trace ID and other structured fields.
+            Use this to locate error logs, exception stack traces, timeout warnings, and other failure signals.
             """)
     public LogSearchResult searchLogs(
-            @ToolParam(description = "目标服务名，如 user-service") String service,
-            @ToolParam(description = "搜索关键词或正则表达式，如 ERROR、NullPointerException") String keyword,
-            @ToolParam(description = "向前回溯时间窗口（分钟），如 30 表示最近 30 分钟") int rangeMinutes,
-            @ToolParam(description = "最大返回日志条数，范围 1–1000，默认 100") int maxResults
+            @ToolParam(description = "Target service name, e.g. user-service") String service,
+            @ToolParam(description = "Search keyword or regex, e.g. ERROR, NullPointerException") String keyword,
+            @ToolParam(description = "Look-back time window in minutes, e.g. 30 means the last 30 minutes") int rangeMinutes,
+            @ToolParam(description = "Maximum number of log entries to return, range 1-1000, default 100") int maxResults
     ) {
         log.info("Tool[searchLogs] service={} keyword={} range={}min", service, keyword, rangeMinutes);
         try {
@@ -171,12 +171,12 @@ public class RcaToolService {
      * @return 链路分析结果，含所有 Span、错误 Span 列表及最慢调用
      */
     @Tool(description = """
-            分析华为云 APM（应用性能管理）中指定 Trace 的完整调用链路。
-            返回所有 Span 的调用关系、耗时、错误信息，
-            自动标记错误 Span 和最慢调用，用于定位服务间调用的故障点。
+            Analyze the full call chain of a trace in APM (Application Performance Management).
+            Returns call relationships, duration, and error details for every span.
+            Automatically highlights error spans and the slowest call to pinpoint inter-service failure points.
             """)
     public TraceResult analyzeTraces(
-            @ToolParam(description = "Trace ID，在告警或日志中可找到，如 abc123def456") String traceId
+            @ToolParam(description = "Trace ID found in alerts or logs, e.g. abc123def456") String traceId
     ) {
         log.info("Tool[analyzeTraces] traceId={}", traceId);
         try {
@@ -202,14 +202,14 @@ public class RcaToolService {
      * @return 拓扑图结果，含服务节点列表（含状态）和调用边列表（含延迟/错误率）
      */
     @Tool(description = """
-            查询服务依赖调用拓扑图（基于 Neo4j 知识图谱）。
-            展示指定服务的上下游依赖关系、各节点健康状态、调用延迟和错误率。
-            用于故障传播路径分析：判断故障是由当前服务引发还是由上游依赖传播而来。
-            depth=1 仅展示直接依赖，depth=3 可展示三层链路。
+            Query the service dependency topology graph from the Neo4j knowledge graph.
+            Shows upstream/downstream dependencies, node health status, call latency, and error rate.
+            Use for fault propagation analysis: determine whether the failure originated locally or propagated from an upstream dependency.
+            depth=1 shows direct dependencies only; depth=3 shows three hops.
             """)
     public TopologyResult queryTopology(
-            @ToolParam(description = "起点服务名，如 user-service") String serviceName,
-            @ToolParam(description = "展开深度 1–5，默认 2。越大覆盖面越广，查询越慢") int depth
+            @ToolParam(description = "Starting service name, e.g. user-service") String serviceName,
+            @ToolParam(description = "Expansion depth 1-5, default 2. Higher values give broader coverage but slower queries") int depth
     ) {
         log.info("Tool[queryTopology] service={} depth={}", serviceName, depth);
         try {
@@ -236,15 +236,15 @@ public class RcaToolService {
      * @return 变更记录列表，按时间倒序排列
      */
     @Tool(description = """
-            查询华为云 CTS（云审计服务）中的变更记录。
-            涵盖配置变更、代码部署、资源扩缩容、权限变更等操作日志。
-            用于关联故障与变更：判断故障是否由近期发布或配置修改引入。
-            返回按时间倒序排列的变更事件，含操作者、操作类型、变更详情。
+            Query CTS (Cloud Trace Service) change records for a service or resource.
+            Covers configuration changes, code deployments, scaling operations, permission changes, and other audit events.
+            Use to correlate incidents with recent changes: determine whether the failure was introduced by a recent release or config modification.
+            Returns change events in reverse chronological order, including operator, operation type, and change details.
             """)
     public Object queryChanges(
-            @ToolParam(description = "服务名或资源名，如 user-service 或 CCE 集群名") String service,
-            @ToolParam(description = "查询开始时间，ISO-8601 格式，如 2025-01-01T00:00:00Z") String startTime,
-            @ToolParam(description = "查询结束时间，ISO-8601 格式") String endTime
+            @ToolParam(description = "Service name or resource name, e.g. user-service or CCE cluster name") String service,
+            @ToolParam(description = "Query start time in ISO-8601 format, e.g. 2025-01-01T00:00:00Z") String startTime,
+            @ToolParam(description = "Query end time in ISO-8601 format") String endTime
     ) {
         log.info("Tool[queryChanges] service={} start={} end={}", service, startTime, endTime);
         try {
@@ -269,14 +269,14 @@ public class RcaToolService {
      * @return 知识图谱查询结果，含记录列表和执行耗时
      */
     @Tool(description = """
-            对 Neo4j 知识图谱执行自定义 Cypher 查询（只读）。
-            知识图谱存储了服务依赖关系、历史故障模式、SRE 知识条目等。
-            通过 Cypher 可查询特定服务的已知故障模式、相关 SOP、知识条目。
-            示例：MATCH (s:Service {name:'user-service'})-[:HAS_PATTERN]->(fp:FailurePattern) RETURN fp
+            Execute a read-only Cypher query on the Neo4j knowledge graph.
+            The graph stores service dependencies, historical failure patterns, and SRE knowledge entries.
+            Use Cypher to retrieve known failure patterns, related SOPs, and knowledge entries for a specific service.
+            Example: MATCH (s:Service {name:'user-service'})-[:HAS_PATTERN]->(fp:FailurePattern) RETURN fp
             """)
     public KgQueryResult kgQuery(
-            @ToolParam(description = "只读 Cypher 查询语句") String cypher,
-            @ToolParam(description = "查询参数 JSON 对象，如 {\"name\": \"user-service\"}，无参数时传 {}") String params
+            @ToolParam(description = "Read-only Cypher query statement") String cypher,
+            @ToolParam(description = "Query parameters as a JSON object, e.g. {\"name\": \"user-service\"}; pass {} if none") String params
     ) {
         log.info("Tool[kgQuery] cypher={}", cypher);
         try {
@@ -302,14 +302,14 @@ public class RcaToolService {
      * @return 相似历史事故列表，按相似度降序排列
      */
     @Tool(description = """
-            基于语义向量搜索，从历史事故库中检索与当前事故最相似的案例。
-            使用嵌入模型将事故描述转为向量，检索最近邻历史事故。
-            返回历史事故的根因、解决方案、持续时长等信息，辅助快速定位当前故障原因。
-            topK 建议填 3–5，相似度低于 0.6 的结果将被过滤。
+            Semantic vector search to retrieve the most similar historical incidents from the incident knowledge base.
+            Converts the incident description to a vector embedding and finds the nearest historical incidents.
+            Returns root cause, resolution, and duration for each historical case to help quickly identify the current failure's cause.
+            Recommended topK: 3-5. Results with similarity below 0.6 are filtered out.
             """)
     public List<IncidentSummary> findSimilarIncidents(
-            @ToolParam(description = "当前事故的自然语言描述，包含症状、受影响服务、告警信息等") String incidentDescription,
-            @ToolParam(description = "返回最相似的前 K 条历史事故，建议 3–10") int topK
+            @ToolParam(description = "Natural language description of the current incident, including symptoms, affected services, and alert details") String incidentDescription,
+            @ToolParam(description = "Number of most similar historical incidents to return, recommended 3-10") int topK
     ) {
         log.info("Tool[findSimilarIncidents] topK={}", topK);
         try {
@@ -335,14 +335,14 @@ public class RcaToolService {
      * @return 告警关联分析结果，含分组信息及共同根因推断
      */
     @Tool(description = """
-            对多条并发告警进行关联分析，去除告警风暴噪音，识别同一根因产生的告警群。
-            输入告警 ID 和告警描述列表，通过时间窗口和语义相似性分组。
-            返回告警分组结果，每组包含推测的共同原因、受影响服务和严重等级。
-            帮助 SRE 快速聚焦于真正的故障根源，而非被次生告警淹没。
+            Correlate multiple concurrent alerts to remove alert storm noise and identify alert clusters sharing a common root cause.
+            Groups alerts by time window and semantic similarity.
+            Returns alert groups, each with an inferred common cause, affected service, and severity level.
+            Helps SRE teams focus on the true root cause rather than being overwhelmed by secondary alerts.
             """)
     public AlertCorrelationResult correlateAlerts(
-            @ToolParam(description = "告警 ID 列表，逗号分隔，如 alert-001,alert-002") String alertIds,
-            @ToolParam(description = "对应的告警描述列表，逗号分隔，与 alertIds 顺序相同") String alertTexts
+            @ToolParam(description = "Comma-separated alert ID list, e.g. alert-001,alert-002") String alertIds,
+            @ToolParam(description = "Comma-separated alert description list, in the same order as alertIds") String alertTexts
     ) {
         log.info("Tool[correlateAlerts] alertIds={}", alertIds);
         try {
@@ -372,16 +372,16 @@ public class RcaToolService {
      * @return 结构化 RCA 报告，含根因、置信度、建议措施
      */
     @Tool(description = """
-            核心根因分析工具：综合指标、日志、Trace、拓扑、变更等证据，
-            调用 vLLM（Qwen2.5-72B）通过 RAG 推断根本原因。
-            在调用本工具之前，建议先用 queryMetrics、searchLogs、analyzeTraces、queryTopology
-            收集足够的证据，以获得高置信度的分析结果。
-            返回结构化报告：根因组件、根因描述、置信度（0–1）、即时处置建议、预防措施。
+            Core root cause analysis tool: synthesizes evidence from metrics, logs, traces, topology, and change records,
+            then calls vLLM (Qwen2.5-72B) via RAG to infer the root cause.
+            Before calling this tool, it is recommended to first collect sufficient evidence using
+            queryMetrics, searchLogs, analyzeTraces, and queryTopology for higher confidence results.
+            Returns a structured report: root cause component, description, confidence (0-1), immediate actions, and prevention measures.
             """)
     public RcaReport analyzeRootCause(
-            @ToolParam(description = "事故 ID，用于关联后续报告，如果没有可填 'auto'") String incidentId,
-            @ToolParam(description = "事故上下文：描述故障现象、受影响服务、业务影响、发现时间等") String incidentContext,
-            @ToolParam(description = "已收集的证据摘要，逗号分隔多条，如指标异常描述、错误日志摘要、Trace 异常 Span 等") String evidenceSummary
+            @ToolParam(description = "Incident ID for linking subsequent reports; pass 'auto' to auto-generate") String incidentId,
+            @ToolParam(description = "Incident context: describe the failure symptoms, affected services, business impact, and discovery time") String incidentContext,
+            @ToolParam(description = "Collected evidence summary, comma-separated, e.g. metric anomaly description, error log summary, abnormal trace spans") String evidenceSummary
     ) {
         log.info("Tool[analyzeRootCause] incidentId={}", incidentId);
         try {
@@ -413,14 +413,14 @@ public class RcaToolService {
      * @return 持久化后的报告确认信息（含报告 ID 和摘要）
      */
     @Tool(description = """
-            将根因分析结果生成为规范化的 RCA 报告，并持久化到 PostgreSQL 数据库。
-            报告可用于事后复盘（Postmortem）和历史事故知识库积累。
-            调用本工具之前，必须先调用 analyzeRootCause 完成根因推断。
-            返回报告 ID、根因摘要、置信度、以及存储状态。
+            Generate a structured RCA report from the root cause analysis results and persist it to PostgreSQL.
+            The report can be used for postmortem review and historical incident knowledge accumulation.
+            Must call analyzeRootCause first before invoking this tool.
+            Returns the report ID, root cause summary, confidence score, and storage status.
             """)
     public Map<String, Object> generateRcaReport(
-            @ToolParam(description = "事故 ID，与 analyzeRootCause 中使用的相同") String incidentId,
-            @ToolParam(description = "补充上下文或人工确认的根因信息，可为空字符串") String additionalContext
+            @ToolParam(description = "Incident ID, same as the one used in analyzeRootCause") String incidentId,
+            @ToolParam(description = "Supplemental context or manually confirmed root cause information; can be empty string") String additionalContext
     ) {
         log.info("Tool[generateRcaReport] incidentId={}", incidentId);
         try {

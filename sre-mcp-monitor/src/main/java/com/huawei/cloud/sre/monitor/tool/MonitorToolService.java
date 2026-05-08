@@ -93,11 +93,11 @@ public class MonitorToolService {
      * @param observations 最新观测值列表（按时间升序），如 [45.2, 46.1, 47.8]
      * @return 更新后的基线状态，含均值、标准差、上下界
      */
-    @Tool(description = "更新指定服务/指标的动态基线（EWMA算法），提交新观测值使基线持续学习")
+    @Tool(description = "Update the dynamic baseline for a service/metric using the EWMA algorithm. Submit new observations to keep the baseline continuously learning.")
     public BaselineStatus updateBaseline(
-            @ToolParam(description = "服务名称，如 order-service") String service,
-            @ToolParam(description = "指标名称，如 cpu_usage、http_latency_p99") String metric,
-            @ToolParam(description = "最新观测值列表（按时间升序），如 [45.2, 46.1, 47.8]") List<Double> observations
+            @ToolParam(description = "Service name, e.g. order-service") String service,
+            @ToolParam(description = "Metric name, e.g. cpu_usage, http_latency_p99") String metric,
+            @ToolParam(description = "Latest observations in ascending time order, e.g. [45.2, 46.1, 47.8]") List<Double> observations
     ) {
         log.info("Tool[updateBaseline] service={} metric={} count={}", service, metric, observations.size());
         BaselineStatus status = baselineEngine.updateBaseline(service, metric, observations);
@@ -123,11 +123,11 @@ public class MonitorToolService {
      * @param currentValue 当前观测值
      * @return 异常检测结果，含是否异常、偏差 sigma、告警建议
      */
-    @Tool(description = "检测指定服务/指标当前值是否偏离动态基线（3σ准则），返回异常类型和严重程度")
+    @Tool(description = "Detect whether the current value of a service/metric deviates from the dynamic baseline (3-sigma rule). Returns anomaly type and severity.")
     public AnomalyResult detectAnomaly(
-            @ToolParam(description = "服务名称") String service,
-            @ToolParam(description = "指标名称") String metric,
-            @ToolParam(description = "当前观测值") double currentValue
+            @ToolParam(description = "Service name") String service,
+            @ToolParam(description = "Metric name") String metric,
+            @ToolParam(description = "Current observed value") double currentValue
     ) {
         log.info("Tool[detectAnomaly] service={} metric={} value={}", service, metric, currentValue);
         AnomalyResult result = baselineEngine.detectAnomaly(service, metric, currentValue);
@@ -157,12 +157,12 @@ public class MonitorToolService {
      * @param forecastHours  预测时间范围（小时，1-168）
      * @return 容量预测结果，含趋势、斜率、预计耗尽时间、扩容建议
      */
-    @Tool(description = "基于历史数据预测服务容量走势，识别潜在资源耗尽风险，生成扩容建议")
+    @Tool(description = "Forecast capacity trend from historical data, identify potential resource exhaustion risks, and generate scaling recommendations.")
     public CapacityForecast forecastCapacity(
-            @ToolParam(description = "服务名称") String service,
-            @ToolParam(description = "指标名称，如 disk_usage_percent、memory_usage") String metric,
-            @ToolParam(description = "历史数据查询起始时间（ISO-8601）") String startTime,
-            @ToolParam(description = "预测时间范围（小时，1-168）") int forecastHours
+            @ToolParam(description = "Service name") String service,
+            @ToolParam(description = "Metric name, e.g. disk_usage_percent, memory_usage") String metric,
+            @ToolParam(description = "Historical data query start time in ISO-8601 format") String startTime,
+            @ToolParam(description = "Forecast time range in hours, range 1-168") int forecastHours
     ) {
         log.info("Tool[forecastCapacity] service={} metric={} start={} hours={}", service, metric, startTime, forecastHours);
         int clampedHours = Math.max(1, Math.min(forecastHours, 168));
@@ -194,11 +194,11 @@ public class MonitorToolService {
      * @param timeRange 分析时间窗口（分钟）
      * @return 指标相关性分析结果（Map，含相关指标对及相关系数）
      */
-    @Tool(description = "分析多个指标之间的相关性，识别具有共同根因的指标群，用于告警风暴定位")
+    @Tool(description = "Analyze correlations between multiple metrics to identify metric clusters sharing a common root cause. Useful for alert storm triage.")
     public Map<String, Object> correlateMetrics(
-            @ToolParam(description = "服务名称") String service,
-            @ToolParam(description = "需关联分析的指标名称列表（最多10个）") List<String> metrics,
-            @ToolParam(description = "分析时间窗口（分钟）") int timeRange
+            @ToolParam(description = "Service name") String service,
+            @ToolParam(description = "List of metric names to correlate, maximum 10") List<String> metrics,
+            @ToolParam(description = "Analysis time window in minutes") int timeRange
     ) {
         log.info("Tool[correlateMetrics] service={} metrics={} range={}min", service, metrics, timeRange);
         List<String> limitedMetrics = metrics.size() > 10 ? metrics.subList(0, 10) : metrics;
@@ -251,9 +251,9 @@ public class MonitorToolService {
      * @param alerts 原始告警列表（每个 Map 含 id/service/metric/severity/message/timestamp 字段）
      * @return 聚合后的告警分组列表
      */
-    @Tool(description = "对告警列表执行时间/拓扑/语义三级聚合去重，减少告警噪声，返回聚合分组")
+    @Tool(description = "Three-level alert deduplication (time/topology/semantic) on an alert list to reduce noise. Returns grouped alerts.")
     public List<AlertGroup> dedupAlerts(
-            @ToolParam(description = "原始告警列表，每个元素含 id/service/metric/severity/message/timestamp 字段") List<Map<String, Object>> alerts
+            @ToolParam(description = "Raw alert list; each element must contain id, service, metric, severity, message, and timestamp fields") List<Map<String, Object>> alerts
     ) {
         log.info("Tool[dedupAlerts] alertCount={}", alerts.size());
         List<AlertGroup> groups = alertAggregator.aggregate(alerts);
@@ -273,14 +273,14 @@ public class MonitorToolService {
      * @param condition 触发条件，如 "> 90"（CREATE 时必填）
      * @return 操作结果（包含规则列表或操作确认）
      */
-    @Tool(description = "创建/更新/删除/列出告警规则，规则持久化到数据库，用于自动化告警阈值触发")
+    @Tool(description = "Create/update/delete/list alert rules. Rules are persisted to the database and used for automated threshold-based alerting.")
     public Map<String, Object> manageAlertRule(
-            @ToolParam(description = "操作：CREATE / UPDATE / DELETE / LIST") String action,
-            @ToolParam(description = "规则ID，UPDATE/DELETE 时必填，CREATE 时忽略") String ruleId,
-            @ToolParam(description = "规则名称，CREATE 时必填") String name,
-            @ToolParam(description = "监控服务名，CREATE 时必填") String service,
-            @ToolParam(description = "监控指标名，CREATE 时必填") String metric,
-            @ToolParam(description = "触发条件和阈值，格式为 \"> 90\" 表示超过90时触发") String condition
+            @ToolParam(description = "Operation: CREATE / UPDATE / DELETE / LIST") String action,
+            @ToolParam(description = "Rule ID, required for UPDATE/DELETE, ignored for CREATE") String ruleId,
+            @ToolParam(description = "Rule name, required for CREATE") String name,
+            @ToolParam(description = "Service to monitor, required for CREATE") String service,
+            @ToolParam(description = "Metric to monitor, required for CREATE") String metric,
+            @ToolParam(description = "Trigger condition and threshold, e.g. \"> 90\" means trigger when value exceeds 90") String condition
     ) {
         log.info("Tool[manageAlertRule] action={} ruleId={} service={}", action, ruleId, service);
         return switch (action.toUpperCase()) {
@@ -301,12 +301,12 @@ public class MonitorToolService {
      * @param reason         静默原因（用于审计）
      * @return 静默操作结果
      */
-    @Tool(description = "为服务/指标设置静默规则，在维护窗口抑制告警，支持按服务/指标粒度控制")
+    @Tool(description = "Set a silence rule for a service/metric to suppress alert notifications during maintenance windows. Supports per-service and per-metric granularity.")
     public Map<String, Object> silenceAlerts(
-            @ToolParam(description = "服务名称，传 \"*\" 表示所有服务") String service,
-            @ToolParam(description = "指标名称，传 \"*\" 表示该服务所有指标") String metric,
-            @ToolParam(description = "静默持续时间（分钟，1-1440）") int durationMinutes,
-            @ToolParam(description = "静默原因（用于审计）") String reason
+            @ToolParam(description = "Service name; pass \"*\" for all services") String service,
+            @ToolParam(description = "Metric name; pass \"*\" for all metrics of the service") String metric,
+            @ToolParam(description = "Silence duration in minutes, range 1-1440") int durationMinutes,
+            @ToolParam(description = "Silence reason (for audit purposes)") String reason
     ) {
         log.info("Tool[silenceAlerts] service={} metric={} minutes={} reason={}", service, metric, durationMinutes, reason);
         int clampedMinutes = Math.max(1, Math.min(durationMinutes, 1440));
@@ -329,10 +329,10 @@ public class MonitorToolService {
      * @param metric  指标名称（传 "*" 查询该服务所有指标）
      * @return 基线状态详情
      */
-    @Tool(description = "查询服务/指标的动态基线状态，包含均值、标准差、告警边界、是否已稳定")
+    @Tool(description = "Query the dynamic baseline status for a service/metric, including mean, std dev, alert bounds, and stability flag.")
     public BaselineStatus getBaselineStatus(
-            @ToolParam(description = "服务名称") String service,
-            @ToolParam(description = "指标名称") String metric
+            @ToolParam(description = "Service name") String service,
+            @ToolParam(description = "Metric name") String metric
     ) {
         log.info("Tool[getBaselineStatus] service={} metric={}", service, metric);
         BaselineStatus status = baselineEngine.getBaselineStatus(service, metric);
@@ -346,9 +346,9 @@ public class MonitorToolService {
      * @param recentMinutes 查询最近多少分钟内的活跃告警（1-1440，默认 60）
      * @return 活跃告警列表，每个元素含 id、eventName、severity、resourceType、message、startsAt 等字段
      */
-    @Tool(description = "从华为云AOM查询当前活跃告警列表，返回最近N分钟内新产生的告警事件，含严重级别、资源信息和告警消息")
+    @Tool(description = "Query the current active alert list from AOM. Returns alert events generated in the last N minutes, including severity level, resource info, and alert message.")
     public List<Map<String, Object>> queryAlerts(
-            @ToolParam(description = "查询最近多少分钟内的活跃告警，范围1-1440，默认60") int recentMinutes
+            @ToolParam(description = "Time window in minutes for active alerts, range 1-1440, default 60") int recentMinutes
     ) {
         int minutes = recentMinutes <= 0 ? 60 : recentMinutes;
         log.info("Tool[queryAlerts] recentMinutes={}", minutes);
@@ -379,14 +379,16 @@ public class MonitorToolService {
      * @return 告警处置决策，含处置步骤、决策来源、根因假设、是否需要升级等
      */
     @Tool(description = """
-            处理告警：先从RAG知识库检索存量应急预案，命中（相似度≥ragThreshold）则返回预案步骤；
-            未命中则由大模型自主决策。返回结果含处置步骤、决策来源(RAG_PLAN/LLM_DECISION)、根因假设。
+            Handle an alert: first retrieves existing emergency plans from the RAG knowledge base;
+            if a match is found (similarity >= ragThreshold) the plan steps are returned directly;
+            otherwise the LLM makes an autonomous decision.
+            Returns response steps, decision source (RAG_PLAN/LLM_DECISION), and root cause hypothesis.
             """)
     public AlertHandlingResult handleAlert(
-            @ToolParam(description = "告警描述，包含告警名称、触发原因、资源等，越详细匹配越准确") String alertDescription,
-            @ToolParam(description = "受影响的服务名称，如 order-service") String service,
-            @ToolParam(description = "告警严重级别：CRITICAL / HIGH / MEDIUM / LOW") String severity,
-            @ToolParam(description = "RAG命中阈值（0.0-1.0），建议0.65；低于此值触发LLM自主决策") double ragThreshold
+            @ToolParam(description = "Alert description including alert name, trigger reason, and resource info; more detail improves matching accuracy") String alertDescription,
+            @ToolParam(description = "Affected service name, e.g. order-service") String service,
+            @ToolParam(description = "Alert severity: CRITICAL / HIGH / MEDIUM / LOW") String severity,
+            @ToolParam(description = "RAG similarity threshold (0.0-1.0), recommended 0.65; below this triggers LLM autonomous decision") double ragThreshold
     ) {
         double threshold = ragThreshold <= 0 ? 0.65 : ragThreshold;
         log.info("Tool[handleAlert] service={} severity={} threshold={}", service, severity, threshold);
@@ -410,15 +412,15 @@ public class MonitorToolService {
      * @param notes         备注（维护人、生效范围等）
      * @return 操作结果，含新建预案 ID
      */
-    @Tool(description = "将应急预案写入RAG向量知识库，后续handleAlert告警处理时可检索命中该预案")
+    @Tool(description = "Index an emergency plan into the RAG vector knowledge base so it can be retrieved by handleAlert when a matching alert occurs.")
     public Map<String, Object> indexEmergencyPlan(
-            @ToolParam(description = "预案标题，如\"order-service OOM 应急预案\"") String title,
-            @ToolParam(description = "该预案对应的告警描述模式，越详细匹配越精准") String alertPattern,
-            @ToolParam(description = "适用服务名，\"*\" 表示通用预案") String service,
-            @ToolParam(description = "对应告警级别：CRITICAL / HIGH / MEDIUM / LOW") String severity,
-            @ToolParam(description = "有序处置步骤列表，如 [\"检查Pod状态\", \"重启异常Pod\"]") List<String> responseSteps,
-            @ToolParam(description = "已知根因提示") String rootCauseHint,
-            @ToolParam(description = "备注（维护人、版本等）") String notes
+            @ToolParam(description = "Plan title, e.g. \"order-service OOM emergency plan\"") String title,
+            @ToolParam(description = "Alert description pattern this plan applies to; more detail improves vector matching accuracy") String alertPattern,
+            @ToolParam(description = "Applicable service name; use \"*\" for a generic plan") String service,
+            @ToolParam(description = "Corresponding alert severity: CRITICAL / HIGH / MEDIUM / LOW") String severity,
+            @ToolParam(description = "Ordered response steps, e.g. [\"Check Pod status\", \"Restart failed Pod\"]") List<String> responseSteps,
+            @ToolParam(description = "Known root cause hint for LLM reference") String rootCauseHint,
+            @ToolParam(description = "Notes (maintainer, version, scope, etc.)") String notes
     ) {
         String planId = UUID.randomUUID().toString();
         log.info("Tool[indexEmergencyPlan] planId={} title={}", planId, title);
@@ -450,10 +452,10 @@ public class MonitorToolService {
      * @param limit         最多返回条数（1-200，默认 20）
      * @return 高内存实例告警列表（最新在前）
      */
-    @Tool(description = "查询内存使用率超过阈值的实例列表（ECS/RDS/DCS/CCE），数据来自5分钟定时CES巡检，含处置建议")
+    @Tool(description = "Query instances (ECS/RDS/DCS/CCE) with memory usage above the threshold. Data is sourced from the 5-minute scheduled CES health check and includes recommended response actions.")
     public List<MemoryAlert> getMemoryAlerts(
-            @ToolParam(description = "组件类型过滤：ECS / RDS / DCS / CCE，传 \"ALL\" 返回全部") String componentType,
-            @ToolParam(description = "最多返回条数（1-200，默认20）") int limit
+            @ToolParam(description = "Component type filter: ECS / RDS / DCS / CCE; pass \"ALL\" to return all types") String componentType,
+            @ToolParam(description = "Maximum number of results to return, range 1-200, default 20") int limit
     ) {
         log.info("Tool[getMemoryAlerts] componentType={} limit={}", componentType, limit);
         int cap = Math.max(1, Math.min(limit <= 0 ? 20 : limit, 200));
@@ -475,11 +477,11 @@ public class MonitorToolService {
      * @param message  通知内容（支持纯文本和 JSON）
      * @return 通知发送结果，含消息 ID
      */
-    @Tool(description = "通过华为云SMN发送告警通知（支持邮件/短信/Webhook），返回消息ID")
+    @Tool(description = "Send alert notifications via SMN (email/SMS/Webhook). Returns the message ID.")
     public NotificationResult sendNotification(
-            @ToolParam(description = "SMN 主题 URN，格式：urn:smn:{region}:{project_id}:{topic_name}") String topicUrn,
-            @ToolParam(description = "通知标题（邮件主题）") String subject,
-            @ToolParam(description = "通知内容（纯文本或 JSON）") String message
+            @ToolParam(description = "SMN topic URN, format: urn:smn:{region}:{project_id}:{topic_name}") String topicUrn,
+            @ToolParam(description = "Notification title (email subject)") String subject,
+            @ToolParam(description = "Notification body (plain text or JSON)") String message
     ) {
         log.info("Tool[sendNotification] topicUrn={} subject={}", topicUrn, subject);
         try {

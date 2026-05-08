@@ -3,6 +3,7 @@ package com.huawei.cloud.sre.common.adapter;
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.dto.TraceResult;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.apm.v1.ApmClient;
 import com.huaweicloud.sdk.apm.v1.model.InstanceSearchParam;
 import com.huaweicloud.sdk.apm.v1.model.ListAppEnvsRequest;
@@ -132,7 +133,7 @@ public class ApmAdapter {
             log.error("APM analyzeTrace failed traceId={} httpStatus={} errorCode={}",
                     traceId, e.getHttpStatusCode(), e.getErrorCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "APM 链路查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.apm.trace.analyze", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -175,7 +176,7 @@ public class ApmAdapter {
         } catch (ServiceResponseException e) {
             log.error("APM listApps failed businessId={} httpStatus={}", businessId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "APM 应用列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.apm.app.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -222,7 +223,7 @@ public class ApmAdapter {
         } catch (ServiceResponseException e) {
             log.error("APM listAppEnvs failed appId={} httpStatus={}", appId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "APM 应用环境列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.apm.app.env.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -283,7 +284,7 @@ public class ApmAdapter {
         } catch (ServiceResponseException e) {
             log.error("APM listEnvInstances failed envId={} httpStatus={}", envId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "APM 环境实例列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.apm.env.instance.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {

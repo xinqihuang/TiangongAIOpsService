@@ -74,7 +74,7 @@ public class MonitorResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://monitor/baselines",
                 "Monitor Baselines",
-                "所有服务的动态基线状态，含均值、标准差、告警边界",
+                "Dynamic baseline status for all services, including mean, standard deviation, and alert bounds",
                 "application/json",
                 null
         );
@@ -112,7 +112,7 @@ public class MonitorResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://monitor/alert-rules",
                 "Alert Rules",
-                "当前启用的告警规则列表，含阈值、严重级别、通知配置",
+                "Currently enabled alert rules, including threshold, severity level, and notification configuration",
                 "application/json",
                 null
         );
@@ -148,7 +148,7 @@ public class MonitorResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://monitor/active-alerts",
                 "Active Alerts",
-                "当前活跃告警（未解决的告警），含告警内容和触发时间",
+                "Currently active (unresolved) alerts, including alert content and trigger time",
                 "application/json",
                 null
         );
@@ -172,7 +172,7 @@ public class MonitorResourceProvider {
         var resource = new McpSchema.Resource(
                 "sre://monitor/anomaly-summary",
                 "Anomaly Summary",
-                "近期异常检测摘要：不稳定基线列表和高风险服务",
+                "Recent anomaly detection summary: unstable baselines and high-risk services",
                 "application/json",
                 null
         );

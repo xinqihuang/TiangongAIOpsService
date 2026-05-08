@@ -3,6 +3,7 @@ package com.huawei.cloud.sre.common.adapter;
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.dto.MetricResult;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.aom.v2.AomClient;
 import com.huaweicloud.sdk.aom.v2.model.DeleteAlarmRuleRequest;
 import com.huaweicloud.sdk.aom.v2.model.Dimension;
@@ -134,7 +135,7 @@ public class AomAdapter {
             return new MetricResult(service, metricName, startTime, endTime, "unknown", dataPoints);
         } catch (ServiceResponseException e) {
             log.error("AOM queryMetric failed service={} metric={} httpStatus={}", service, metricName, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "AOM 指标查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.aom.metric.query", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -190,7 +191,7 @@ public class AomAdapter {
             return result;
         } catch (ServiceResponseException e) {
             log.error("AOM listActiveAlarms failed httpStatus={} errorCode={}", e.getHttpStatusCode(), e.getErrorCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.aom.alarm.query", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -236,7 +237,7 @@ public class AomAdapter {
             return rules;
         } catch (ServiceResponseException e) {
             log.error("AOM listAlarmRules failed httpStatus={}", e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警规则列表查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.aom.alarm.rule.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -279,7 +280,7 @@ public class AomAdapter {
             return result;
         } catch (ServiceResponseException e) {
             log.error("AOM getAlarmRule failed alarmRuleId={} httpStatus={}", alarmRuleId, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警规则查询失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.aom.alarm.rule.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",
@@ -303,7 +304,7 @@ public class AomAdapter {
             log.info("AOM deleteAlarmRule success alarmRuleId={}", alarmRuleId);
         } catch (ServiceResponseException e) {
             log.error("AOM deleteAlarmRule failed alarmRuleId={} httpStatus={}", alarmRuleId, e.getHttpStatusCode());
-            throw new HuaweiCloudException(SERVICE_NAME, "AOM 告警规则删除失败: " + e.getErrorMsg(),
+            throw new HuaweiCloudException(SERVICE_NAME, Messages.get("err.aom.alarm.rule.delete", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e);
         } finally {
             sample.stop(meterRegistry.timer("huaweicloud.adapter.duration",

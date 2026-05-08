@@ -1,6 +1,7 @@
 package com.huawei.cloud.sre.common.security;
 
 import com.huawei.cloud.sre.common.exception.McpToolException;
+import com.huawei.cloud.sre.common.util.Messages;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -40,7 +41,7 @@ public class ToolPermissionAspect {
         if (!TenantContext.hasScope(requiredScope)) {
             Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
             String message = requirePermission.message().isBlank()
-                    ? String.format("用户 [%s] 缺少权限 [%s]，无法调用 Tool [%s]", userId, requiredScope, method.getName())
+                    ? Messages.get("err.permission.denied", userId, requiredScope, method.getName())
                     : requirePermission.message();
             log.warn("Permission denied userId={} tenantId={} requiredScope={} tool={}",
                     userId, tenantId, requiredScope, method.getName());

@@ -2,6 +2,7 @@ package com.huawei.cloud.sre.common.adapter;
 
 import com.huawei.cloud.sre.common.credential.HuaweiCloudCredentialProvider;
 import com.huawei.cloud.sre.common.exception.HuaweiCloudException;
+import com.huawei.cloud.sre.common.util.Messages;
 import com.huaweicloud.sdk.core.exception.ServiceResponseException;
 import com.huaweicloud.sdk.elb.v3.ElbClient;
 import com.huaweicloud.sdk.elb.v3.model.ListHealthMonitorsRequest;
@@ -104,7 +105,7 @@ public class ElbAdapter {
         } catch (ServiceResponseException e) {
             log.error("ELB listLoadBalancers failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ELB 负载均衡器列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.elb.lb.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -144,7 +145,7 @@ public class ElbAdapter {
         } catch (ServiceResponseException e) {
             log.error("ELB getLoadBalancer failed loadBalancerId={} httpStatus={}", loadBalancerId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ELB 负载均衡器查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.elb.lb.get", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -194,7 +195,7 @@ public class ElbAdapter {
         } catch (ServiceResponseException e) {
             log.error("ELB listListeners failed loadBalancerId={} httpStatus={}", loadBalancerId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ELB 监听器列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.elb.listener.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -236,7 +237,7 @@ public class ElbAdapter {
         } catch (ServiceResponseException e) {
             log.error("ELB listPools failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ELB 后端池列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.elb.pool.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -284,7 +285,7 @@ public class ElbAdapter {
         } catch (ServiceResponseException e) {
             log.error("ELB listMembers failed poolId={} httpStatus={}", poolId, e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ELB 后端成员列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.elb.member.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
@@ -329,7 +330,7 @@ public class ElbAdapter {
         } catch (ServiceResponseException e) {
             log.error("ELB listHealthMonitors failed httpStatus={}", e.getHttpStatusCode());
             throw new HuaweiCloudException(
-                    SERVICE_NAME, "ELB 健康检查列表查询失败: " + e.getErrorMsg(),
+                    SERVICE_NAME, Messages.get("err.elb.healthmonitor.list", e.getErrorMsg()),
                     e.getHttpStatusCode(), e.getErrorCode(), e.getRequestId(), e
             );
         } finally {
