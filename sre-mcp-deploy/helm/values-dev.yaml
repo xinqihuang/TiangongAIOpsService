@@ -42,6 +42,10 @@ rca:
     pullPolicy: Never           # use locally built image
   ingress:
     enabled: false
+  neo4j:
+    uri: bolt://neo4j.sre-mcp-dev.svc.cluster.local:7687
+    user: neo4j
+    password: devpassword
   resources:
     requests:
       cpu: 200m

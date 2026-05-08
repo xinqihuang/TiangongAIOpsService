@@ -21,6 +21,10 @@ data:
   PG_USER: {{ $.Values.global.postgres.username | quote }}
   KAFKA_BOOTSTRAP_SERVERS: {{ $.Values.global.kafka.bootstrapServers | quote }}
   VLLM_ENDPOINT: {{ $.Values.global.vllm.endpoint | quote }}
+  {{- if eq $module "rca" }}
+  NEO4J_URI: {{ $mod.neo4j.uri | quote }}
+  NEO4J_USER: {{ $mod.neo4j.user | quote }}
+  {{- end }}
   {{- range $k, $v := $mod.extraEnv }}
   {{ $k }}: {{ $v | quote }}
   {{- end }}

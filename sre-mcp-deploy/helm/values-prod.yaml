@@ -45,6 +45,10 @@ rca:
     repository: swr.cn-north-4.myhuaweicloud.com/sre-mcp/sre-mcp-rca
     tag: "0.1.0"              # Pinned release tag, no "latest" in prod
     pullPolicy: IfNotPresent
+  neo4j:
+    uri: ""                   # Neo4j / GDB endpoint on ECS (internal IP:7687)
+    user: neo4j
+    password: ""              # From ExternalSecret
   ingress:
     enabled: true
     className: nginx

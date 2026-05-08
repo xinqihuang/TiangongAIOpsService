@@ -78,6 +78,11 @@ rca:
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
 
+  neo4j:
+    uri: bolt://neo4j.sre-infra.svc.cluster.local:7687
+    user: neo4j
+    password: ""
+
   extraEnv:
     HW_CCE_CLUSTER_ID: ""
 
