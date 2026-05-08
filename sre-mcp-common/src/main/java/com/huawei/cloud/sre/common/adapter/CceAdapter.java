@@ -287,7 +287,7 @@ public class CceAdapter {
                     var status = node.getStatus();
                     item.put("uid", meta != null && meta.getUid() != null ? meta.getUid() : "");
                     item.put("name", meta != null && meta.getName() != null ? meta.getName() : "");
-                    item.put("phase", status != null && status.getPhase() != null
+                    item.put("status", status != null && status.getPhase() != null
                             ? status.getPhase().getValue() : "Unknown");
                     item.put("privateIp", status != null && status.getPrivateIP() != null
                             ? status.getPrivateIP() : "");
