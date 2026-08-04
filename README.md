@@ -1,5 +1,5 @@
 # SRE MCP Platform
-
+iq9GMJkJm5ZLYboe8_jkSqYlTm2VY-5X4SYYVGPhaBFsHNH83103TyfDguokxUHXdO16qbFadiIvyTiQg5ROCw
 华为云 AI For SRE 智能运维平台 —— 基于 **Model Context Protocol (MCP)** 的微服务集群。
 
 ## 模块
