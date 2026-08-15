@@ -2,6 +2,10 @@
 iq9GMJkJm5ZLYboe8_jkSqYlTm2VY-5X4SYYVGPhaBFsHNH83103TyfDguokxUHXdO16qbFadiIvyTiQg5ROCw
 华为云 AI For SRE 智能运维平台 —— 基于 **Model Context Protocol (MCP)** 的微服务集群。
 
+WM2NEXJZEXZR8LQWAIJM
+
+ciGUoO4PQ595wn1HW6ZNOoh9QTCJD0x8EVnWcaUi
+
 ## 模块
 
 | 模块 | 端口 | 职责 |
