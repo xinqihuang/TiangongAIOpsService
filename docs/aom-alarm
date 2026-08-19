@@ -1,0 +1,100 @@
+{
+    "alarm_rules": [
+        {
+            "alarm_create_time": 1787111019437,
+            "alarm_notifications": {
+                "bind_notification_rule_id": "老IOT应急预案",
+                "notification_enable": true,
+                "notification_type": "direct",
+                "notify_frequency": 0,
+                "notify_resolved": true,
+                "notify_triggered": true,
+                "route_group_enable": false,
+                "route_group_rule": ""
+            },
+            "alarm_rule_description": "",
+            "alarm_rule_enable": false,
+            "alarm_rule_id": 1539600734096637953,
+            "alarm_rule_id_str": "1539600734096637953",
+            "alarm_rule_name": "智能光伏-P2风险告警-老IOT-微服务DPDispatcherService容器状态异常-0178_132",
+            "alarm_rule_status": "Invalid",
+            "alarm_rule_type": "metric",
+            "alarm_update_time": 1787111019437,
+            "alias": "智能光伏-P2风险告警-老IOT-微服务DPDispatcherService容器状态异常-0178_132",
+            "disassociateTemplate": false,
+            "enterprise_project_id": "06e1c549-28f1-4a27-9436-cbddfaf485c7",
+            "metric_alarm_spec": {
+                "alarm_rule_template_bind_enable": false,
+                "alarm_rule_template_id": "",
+                "alarm_tags": [
+                    {
+                        "auto_tags": [],
+                        "custom_annotations": [],
+                        "custom_tags": []
+                    }
+                ],
+                "metric_collect_id": "1",
+                "monitor_objects": [],
+                "monitor_type": "all_metric",
+                "no_data_conditions": [
+                    {
+                        "no_data_alert_state": "ok",
+                        "no_data_timeframe": 3,
+                        "notify_no_data": true
+                    }
+                ],
+                "recovery_conditions": {
+                    "recovery_timeframe": 3
+                },
+                "trigger_conditions": [
+                    {
+                        "aggregate_type": "by",
+                        "aggregation_type": "maximum",
+                        "aggregation_window": "1m",
+                        "alarm_message_template": "",
+                        "aom_monitor_level": "",
+                        "cmdb": {
+                            "app_id": "",
+                            "node_ids": []
+                        },
+                        "expression": "",
+                        "metric_labels": [],
+                        "metric_name": "aom_process_status",
+                        "metric_namespace": "PAAS.CONTAINER",
+                        "metric_query_mode": "PROM",
+                        "metric_statistic_method": "single",
+                        "metric_unit": "",
+                        "operator": ">",
+                        "promql": "label_replace(max_over_time(aom_process_status{nameSpace=~\"dpframework|dpframework01|dpframework02|dpframework06|dpframework07\"}[59999ms]),\"__name__\",\"aom_process_status\",\"\",\"\")",
+                        "promql_for": "3m",
+                        "query_match": "[{\"conditionList\":[{\"name\":\"devmgr\"},{\"name\":\"drivecloud-seres\"},{\"name\":\"openapigateway\"},{\"name\":\"uniaccount\"},{\"name\":\"default\"},{\"name\":\"dpframework\"},{\"name\":\"fusioncharge-public\"},{\"name\":\"smartpvms\"},{\"name\":\"fusioncharge-home\"},{\"name\":\"drivecloud-jac\"},{\"name\":\"promotion\"},{\"name\":\"dpdata-ai\"},{\"name\":\"icooling\"},{\"name\":\"inspection06\"},{\"name\":\"pvmsops\"},{\"name\":\"devmgr06\"},{\"name\":\"dpframework01\"},{\"name\":\"dpframework06\"},{\"name\":\"inspection\"},{\"name\":\"fusioncharge\"},{\"name\":\"drivecloud-gac\"},{\"name\":\"dmaas\"},{\"name\":\"dpframework03\"},{\"name\":\"energymanagement\"},{\"name\":\"istio-system\"},{\"name\":\"monitoring\"},{\"name\":\"dpframework02\"},{\"name\":\"kube-system\"},{\"name\":\"dpmessagepush\"},{\"name\":\"dpdata\"},{\"name\":\"dpframework10000\"},{\"name\":\"istio-operator\"},{\"name\":\"dpframework07\"},{\"name\":\"uniaccount01\"},{\"name\":\"dpiot\"},{\"name\":\"castprobe\"},{\"name\":\"uniwebframework\"},{\"name\":\"uniaccount80\"},{\"name\":\"dpframework04\"},{\"name\":\"dataops-drivecloud-jac\"},{\"name\":\"dpdata06\"},{\"name\":\"unifm-charge\"},{\"name\":\"unihome\"},{\"name\":\"naie\"},{\"name\":\"ers-manager\"},{\"name\":\"xac-executor\"},{\"name\":\"dte\"},{\"name\":\"offering\"},{\"name\":\"uniportal\"},{\"name\":\"bms\"},{\"name\":\"dpappmqtt\"},{\"name\":\"business\"},{\"name\":\"order\"},{\"name\":\"dataops-drivecloud-gac\"},{\"name\":\"smartdesign\"},{\"name\":\"uniruleengine-jac\"},{\"name\":\"fusioncharge-controller\"},{\"name\":\"devicediagnosis\"},{\"name\":\"chargedataeco\"},{\"name\":\"uniaccount60\"},{\"name\":\"devmgr01\"},{\"name\":\"charge\"},{\"name\":\"uniruleengine-gac\"},{\"name\":\"dte-seres\"},{\"name\":\"partner\"},{\"name\":\"fusioncharge-solar\"},{\"name\":\"uniaccount61\"},{\"name\":\"dte-gac\"},{\"name\":\"bms-ai\"},{\"name\":\"payment\"},{\"name\":\"dataops-drivecloud-seres\"},{\"name\":\"cce-monitoring\"},{\"name\":\"unifm\"},{\"name\":\"uniaccount02\"},{\"name\":\"viewplat\"},{\"name\":\"dataops\"},{\"name\":\"bms-ai-ict\"},{\"name\":\"dte-jac\"},{\"name\":\"unifm-privatecharge\"},{\"name\":\"uniruleengine-seres\"},{\"name\":\"smartpvmsapp\"}],\"addMode\":\"first\",\"dimensionSelected\":[{\"label\":\"集群的命名空间\",\"id\":\"nameSpace\"}],\"conditionValue\":[{\"name\":\"dpframework\"},{\"name\":\"dpframework01\"},{\"name\":\"dpframework02\"},{\"name\":\"dpframework06\"},{\"name\":\"dpframework07\"}],\"id\":\"first\",\"conditionCompare\":\"=\",\"dimension\":\"nameSpace\"}]",
+                        "query_param": {
+                            "code": "a",
+                            "apmMetricReg": []
+                        },
+                        "thresholds": {
+                            "Critical": "0.5"
+                        },
+                        "trigger_interval": "1m",
+                        "trigger_times": 3,
+                        "trigger_type": "FIXED_RATE"
+                    }
+                ],
+                "trigger_conditions_logic": "",
+                "update_alarm_rule": true
+            },
+            "prom_instance_id": "0",
+            "user_id": "81679072734a4608ae65cd3940458c51"
+        }
+    ],
+    "count": 1,
+    "metadata": {
+        "custom_tags": [],
+        "prom_instance_id": [
+            "0"
+        ],
+        "bind_notification_rule_id": [
+            "老IOT应急预案"
+        ]
+    }
+}
