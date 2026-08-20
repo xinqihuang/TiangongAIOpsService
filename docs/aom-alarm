@@ -1,9 +1,9 @@
 {
     "alarm_rules": [
         {
-            "alarm_create_time": 1787111019437,
+            "alarm_create_time": 1757574304211,
             "alarm_notifications": {
-                "bind_notification_rule_id": "老IOT应急预案",
+                "bind_notification_rule_id": "SMN_notify",
                 "notification_enable": true,
                 "notification_type": "direct",
                 "notify_frequency": 0,
@@ -13,14 +13,14 @@
                 "route_group_rule": ""
             },
             "alarm_rule_description": "",
-            "alarm_rule_enable": false,
-            "alarm_rule_id": 1539600734096637953,
-            "alarm_rule_id_str": "1539600734096637953",
-            "alarm_rule_name": "智能光伏-P2风险告警-老IOT-微服务DPDispatcherService容器状态异常-0178_132",
-            "alarm_rule_status": "Invalid",
+            "alarm_rule_enable": true,
+            "alarm_rule_id": 1415714771289784323,
+            "alarm_rule_id_str": "1415714771289784323",
+            "alarm_rule_name": "P2风险告警-智能光伏-AI光储-容器内存使用率异常-0167_11",
+            "alarm_rule_status": "OK",
             "alarm_rule_type": "metric",
-            "alarm_update_time": 1787111019437,
-            "alias": "智能光伏-P2风险告警-老IOT-微服务DPDispatcherService容器状态异常-0178_132",
+            "alarm_update_time": 1787210954994,
+            "alias": "P4A风险告警-智能光伏-AI光储-容器内存使用率异常-0167_11",
             "disassociateTemplate": false,
             "enterprise_project_id": "06e1c549-28f1-4a27-9436-cbddfaf485c7",
             "metric_alarm_spec": {
@@ -44,8 +44,9 @@
                     }
                 ],
                 "recovery_conditions": {
-                    "recovery_timeframe": 3
+                    "recovery_timeframe": 1
                 },
+                "resource_kind": "",
                 "trigger_conditions": [
                     {
                         "aggregate_type": "by",
@@ -59,24 +60,24 @@
                         },
                         "expression": "",
                         "metric_labels": [],
-                        "metric_name": "aom_process_status",
+                        "metric_name": "aom_container_memory_usage",
                         "metric_namespace": "PAAS.CONTAINER",
                         "metric_query_mode": "PROM",
                         "metric_statistic_method": "single",
-                        "metric_unit": "",
+                        "metric_unit": "%",
                         "operator": ">",
-                        "promql": "label_replace(max_over_time(aom_process_status{nameSpace=~\"dpframework|dpframework01|dpframework02|dpframework06|dpframework07\"}[59999ms]),\"__name__\",\"aom_process_status\",\"\",\"\")",
-                        "promql_for": "3m",
-                        "query_match": "[{\"conditionList\":[{\"name\":\"devmgr\"},{\"name\":\"drivecloud-seres\"},{\"name\":\"openapigateway\"},{\"name\":\"uniaccount\"},{\"name\":\"default\"},{\"name\":\"dpframework\"},{\"name\":\"fusioncharge-public\"},{\"name\":\"smartpvms\"},{\"name\":\"fusioncharge-home\"},{\"name\":\"drivecloud-jac\"},{\"name\":\"promotion\"},{\"name\":\"dpdata-ai\"},{\"name\":\"icooling\"},{\"name\":\"inspection06\"},{\"name\":\"pvmsops\"},{\"name\":\"devmgr06\"},{\"name\":\"dpframework01\"},{\"name\":\"dpframework06\"},{\"name\":\"inspection\"},{\"name\":\"fusioncharge\"},{\"name\":\"drivecloud-gac\"},{\"name\":\"dmaas\"},{\"name\":\"dpframework03\"},{\"name\":\"energymanagement\"},{\"name\":\"istio-system\"},{\"name\":\"monitoring\"},{\"name\":\"dpframework02\"},{\"name\":\"kube-system\"},{\"name\":\"dpmessagepush\"},{\"name\":\"dpdata\"},{\"name\":\"dpframework10000\"},{\"name\":\"istio-operator\"},{\"name\":\"dpframework07\"},{\"name\":\"uniaccount01\"},{\"name\":\"dpiot\"},{\"name\":\"castprobe\"},{\"name\":\"uniwebframework\"},{\"name\":\"uniaccount80\"},{\"name\":\"dpframework04\"},{\"name\":\"dataops-drivecloud-jac\"},{\"name\":\"dpdata06\"},{\"name\":\"unifm-charge\"},{\"name\":\"unihome\"},{\"name\":\"naie\"},{\"name\":\"ers-manager\"},{\"name\":\"xac-executor\"},{\"name\":\"dte\"},{\"name\":\"offering\"},{\"name\":\"uniportal\"},{\"name\":\"bms\"},{\"name\":\"dpappmqtt\"},{\"name\":\"business\"},{\"name\":\"order\"},{\"name\":\"dataops-drivecloud-gac\"},{\"name\":\"smartdesign\"},{\"name\":\"uniruleengine-jac\"},{\"name\":\"fusioncharge-controller\"},{\"name\":\"devicediagnosis\"},{\"name\":\"chargedataeco\"},{\"name\":\"uniaccount60\"},{\"name\":\"devmgr01\"},{\"name\":\"charge\"},{\"name\":\"uniruleengine-gac\"},{\"name\":\"dte-seres\"},{\"name\":\"partner\"},{\"name\":\"fusioncharge-solar\"},{\"name\":\"uniaccount61\"},{\"name\":\"dte-gac\"},{\"name\":\"bms-ai\"},{\"name\":\"payment\"},{\"name\":\"dataops-drivecloud-seres\"},{\"name\":\"cce-monitoring\"},{\"name\":\"unifm\"},{\"name\":\"uniaccount02\"},{\"name\":\"viewplat\"},{\"name\":\"dataops\"},{\"name\":\"bms-ai-ict\"},{\"name\":\"dte-jac\"},{\"name\":\"unifm-privatecharge\"},{\"name\":\"uniruleengine-seres\"},{\"name\":\"smartpvmsapp\"}],\"addMode\":\"first\",\"dimensionSelected\":[{\"label\":\"集群的命名空间\",\"id\":\"nameSpace\"}],\"conditionValue\":[{\"name\":\"dpframework\"},{\"name\":\"dpframework01\"},{\"name\":\"dpframework02\"},{\"name\":\"dpframework06\"},{\"name\":\"dpframework07\"}],\"id\":\"first\",\"conditionCompare\":\"=\",\"dimension\":\"nameSpace\"}]",
+                        "promql": "label_replace(max_over_time(aom_container_memory_usage{nameSpace=\"energymanagement\",clusterName=\"cce-cluster-perf168w-pvms\"}[59999ms]),\"__name__\",\"aom_container_memory_usage\",\"\",\"\") OR label_replace(max_over_time(aom_container_memory_usage{nameSpace=\"naie\",clusterName=\"cce-cluster-perf168w-aiplatform\",containerName=~\"^algorithm-.*$\"}[59999ms]),\"__name__\",\"aom_container_memory_usage\",\"\",\"\")",
+                        "promql_for": "1m",
+                        "query_match": "[{\"conditionList\":[{\"name\":\"fusioncharge-home\"},{\"name\":\"promotion\"},{\"name\":\"uniaccount\"},{\"name\":\"fusioncharge-public\"},{\"name\":\"naie\"},{\"name\":\"dpmessagepush\"},{\"name\":\"devmgr\"},{\"name\":\"drivecloud-seres\"},{\"name\":\"partner\"},{\"name\":\"energymanagement\"},{\"name\":\"dpiot\"},{\"name\":\"drivecloud-jac\"},{\"name\":\"drivecloud-gac\"},{\"name\":\"kube-system\"},{\"name\":\"smartdesign\"},{\"name\":\"charge\"},{\"name\":\"smartpvms\"},{\"name\":\"business\"},{\"name\":\"bms\"},{\"name\":\"devmgr06\"},{\"name\":\"ers-manager\"},{\"name\":\"istio-system\"},{\"name\":\"smartpvmsapp\"},{\"name\":\"dpdata-ai\"},{\"name\":\"chargedataeco\"},{\"name\":\"openapigateway\"},{\"name\":\"offering\"},{\"name\":\"uniportal\"},{\"name\":\"dpframework02\"},{\"name\":\"dataops-drivecloud-jac\"},{\"name\":\"dataops-drivecloud-seres\"},{\"name\":\"dataops\"},{\"name\":\"dataops-drivecloud-gac\"},{\"name\":\"dte\"},{\"name\":\"default\"},{\"name\":\"dpframework\"},{\"name\":\"monitoring\"},{\"name\":\"devicediagnosis\"},{\"name\":\"dmaas\"},{\"name\":\"inspection\"},{\"name\":\"inspection06\"},{\"name\":\"dpframework06\"},{\"name\":\"unihome\"},{\"name\":\"uniwebframework\"},{\"name\":\"uniruleengine-jac\"},{\"name\":\"uniruleengine-gac\"},{\"name\":\"uniruleengine-seres\"},{\"name\":\"cce-monitoring\"},{\"name\":\"xac-executor\"},{\"name\":\"uniaccount01\"},{\"name\":\"uniaccount80\"},{\"name\":\"uniaccount60\"},{\"name\":\"uniaccount61\"},{\"name\":\"uniaccount02\"},{\"name\":\"icooling\"},{\"name\":\"dte-gac\"},{\"name\":\"dte-seres\"},{\"name\":\"dte-jac\"},{\"name\":\"istio-operator\"},{\"name\":\"fusioncharge\"},{\"name\":\"fusioncharge-solar\"},{\"name\":\"dpdata\"},{\"name\":\"dpdata06\"},{\"name\":\"payment\"},{\"name\":\"fusioncharge-controller\"},{\"name\":\"order\"},{\"name\":\"castprobe\"},{\"name\":\"bms-ai\"},{\"name\":\"bms-ai-ict\"},{\"name\":\"dpframework01\"},{\"name\":\"viewplat\"},{\"name\":\"pvmsops\"},{\"name\":\"unifm-charge\"},{\"name\":\"unifm-privatecharge\"},{\"name\":\"unifm\"},{\"name\":\"dpappmqtt\"},{\"name\":\"dpframework07\"}],\"addMode\":\"first\",\"dimensionSelected\":[{\"label\":\"集群的命名空间\",\"id\":\"nameSpace\"}],\"conditionValue\":[{\"name\":\"energymanagement\"}],\"id\":\"first\",\"conditionCompare\":\"=\",\"dimension\":\"nameSpace\"},{\"conditionList\":[{\"name\":\"cce-cluster-china2023-saas-privatecharge\"},{\"name\":\"cce-cluster-china2023-paas\"},{\"name\":\"cce-cluster-chinachargemgr-chargemgr\"},{\"name\":\"cce-cluster-perf168w-public\"},{\"name\":\"cce-cluster-perf168w-aiplatform\"},{\"name\":\"cce-paas-privatecharge-a\"},{\"name\":\"cce-drivecloud\"},{\"name\":\"cce-cluster-apaas-gamma1\"},{\"name\":\"cce-cluster-perf168w-pvms\"},{\"name\":\"cce-cluster-china2023-pvms01\"},{\"name\":\"cce-uidm-cluster-b\"},{\"name\":\"cce-china2023-publiccharge-cluster-a\"},{\"name\":\"cce-uidm-cluster-a\"},{\"name\":\"cce-china2023-publiccharge-cluster-b\"},{\"name\":\"cce-cluster-perf168w-paas\"},{\"name\":\"cce-cluster-china2023-pvms02\"},{\"name\":\"cce-cluster-china2023-paas-privatecharge\"},{\"name\":\"cce-cluster-china2023-paas-pvms\"},{\"name\":\"cce-cluster-china2023-paas-public-new\"},{\"name\":\"cce-cluster-china2023-aiplatform\"},{\"name\":\"cce-cluster-perf12wla-dpcloud\"}],\"addMode\":\"AND\",\"dimensionSelected\":[{\"label\":\"集群名称\",\"id\":\"clusterName\"}],\"conditionValue\":[{\"name\":\"cce-cluster-perf168w-pvms\"}],\"id\":\"1787191368624\",\"conditionCompare\":\"=\",\"dimension\":\"clusterName\"},{\"conditionList\":[{\"name\":\"fusioncharge-home\"},{\"name\":\"promotion\"},{\"name\":\"uniaccount\"},{\"name\":\"fusioncharge-public\"},{\"name\":\"naie\"},{\"name\":\"dpmessagepush\"},{\"name\":\"devmgr\"},{\"name\":\"drivecloud-seres\"},{\"name\":\"partner\"},{\"name\":\"energymanagement\"},{\"name\":\"dpiot\"},{\"name\":\"drivecloud-jac\"},{\"name\":\"drivecloud-gac\"},{\"name\":\"kube-system\"},{\"name\":\"smartdesign\"},{\"name\":\"charge\"},{\"name\":\"smartpvms\"},{\"name\":\"business\"},{\"name\":\"bms\"},{\"name\":\"devmgr06\"},{\"name\":\"ers-manager\"},{\"name\":\"istio-system\"},{\"name\":\"smartpvmsapp\"},{\"name\":\"dpdata-ai\"},{\"name\":\"chargedataeco\"},{\"name\":\"openapigateway\"},{\"name\":\"offering\"},{\"name\":\"uniportal\"},{\"name\":\"dpframework02\"},{\"name\":\"dataops-drivecloud-jac\"},{\"name\":\"dataops-drivecloud-seres\"},{\"name\":\"dataops\"},{\"name\":\"dataops-drivecloud-gac\"},{\"name\":\"dte\"},{\"name\":\"default\"},{\"name\":\"dpframework\"},{\"name\":\"monitoring\"},{\"name\":\"devicediagnosis\"},{\"name\":\"dmaas\"},{\"name\":\"inspection\"},{\"name\":\"inspection06\"},{\"name\":\"dpframework06\"},{\"name\":\"unihome\"},{\"name\":\"uniwebframework\"},{\"name\":\"uniruleengine-jac\"},{\"name\":\"uniruleengine-gac\"},{\"name\":\"uniruleengine-seres\"},{\"name\":\"cce-monitoring\"},{\"name\":\"xac-executor\"},{\"name\":\"uniaccount01\"},{\"name\":\"uniaccount80\"},{\"name\":\"uniaccount60\"},{\"name\":\"uniaccount61\"},{\"name\":\"uniaccount02\"},{\"name\":\"icooling\"},{\"name\":\"dte-gac\"},{\"name\":\"dte-seres\"},{\"name\":\"dte-jac\"},{\"name\":\"istio-operator\"},{\"name\":\"fusioncharge\"},{\"name\":\"fusioncharge-solar\"},{\"name\":\"dpdata\"},{\"name\":\"dpdata06\"},{\"name\":\"payment\"},{\"name\":\"fusioncharge-controller\"},{\"name\":\"order\"},{\"name\":\"castprobe\"},{\"name\":\"bms-ai\"},{\"name\":\"bms-ai-ict\"},{\"name\":\"dpframework01\"},{\"name\":\"viewplat\"},{\"name\":\"pvmsops\"},{\"name\":\"unifm-charge\"},{\"name\":\"unifm-privatecharge\"},{\"name\":\"unifm\"},{\"name\":\"dpappmqtt\"},{\"name\":\"dpframework07\"}],\"addMode\":\"OR\",\"dimensionSelected\":[{\"label\":\"集群的命名空间\",\"id\":\"nameSpace\"}],\"conditionValue\":[{\"name\":\"naie\"}],\"id\":\"1787191390080\",\"conditionCompare\":\"=\",\"dimension\":\"nameSpace\"},{\"conditionList\":[{\"name\":\"cce-cluster-china2023-saas-privatecharge\"},{\"name\":\"cce-cluster-china2023-paas\"},{\"name\":\"cce-cluster-chinachargemgr-chargemgr\"},{\"name\":\"cce-cluster-perf168w-public\"},{\"name\":\"cce-cluster-perf168w-aiplatform\"},{\"name\":\"cce-paas-privatecharge-a\"},{\"name\":\"cce-drivecloud\"},{\"name\":\"cce-cluster-apaas-gamma1\"},{\"name\":\"cce-cluster-perf168w-pvms\"},{\"name\":\"cce-cluster-china2023-pvms01\"},{\"name\":\"cce-uidm-cluster-b\"},{\"name\":\"cce-china2023-publiccharge-cluster-a\"},{\"name\":\"cce-uidm-cluster-a\"},{\"name\":\"cce-china2023-publiccharge-cluster-b\"},{\"name\":\"cce-cluster-perf168w-paas\"},{\"name\":\"cce-cluster-china2023-pvms02\"},{\"name\":\"cce-cluster-china2023-paas-privatecharge\"},{\"name\":\"cce-cluster-china2023-paas-pvms\"},{\"name\":\"cce-cluster-china2023-paas-public-new\"},{\"name\":\"cce-cluster-china2023-aiplatform\"},{\"name\":\"cce-cluster-perf12wla-dpcloud\"}],\"addMode\":\"AND\",\"dimensionSelected\":[{\"label\":\"集群名称\",\"id\":\"clusterName\"}],\"conditionValue\":[{\"name\":\"cce-cluster-perf168w-aiplatform\"}],\"id\":\"1787191419159\",\"conditionCompare\":\"=\",\"dimension\":\"clusterName\"},{\"conditionList\":[],\"addMode\":\"AND\",\"dimensionSelected\":[{\"label\":\"容器名称\",\"id\":\"containerName\"}],\"conditionValue\":[],\"id\":\"1787191438163\",\"conditionCompare\":\"=~\",\"regExpress\":\"^algorithm-.*$\",\"dimension\":\"containerName\"}]",
                         "query_param": {
                             "code": "a",
                             "apmMetricReg": []
                         },
                         "thresholds": {
-                            "Critical": "0.5"
+                            "Critical": "95"
                         },
                         "trigger_interval": "1m",
-                        "trigger_times": 3,
+                        "trigger_times": 1,
                         "trigger_type": "FIXED_RATE"
                     }
                 ],
@@ -94,7 +95,7 @@
             "0"
         ],
         "bind_notification_rule_id": [
-            "老IOT应急预案"
+            "SMN_notify"
         ]
     }
 }
