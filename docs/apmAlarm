@@ -1,0 +1,149 @@
+https://console.huaweicloud.com/apm2/web/alarm/template/v1/get-template-list?business_id=111092&page=1&page_size=10&keyword=tomcat
+
+business_id
+111092
+page
+1
+page_size
+10
+keyword
+tomcat
+
+
+
+
+{
+    "templates": [
+        {
+            "id": 8469,
+            "business_id": 111092,
+            "name": "Warroom风险告警-老IOT-微服务DPDispatcherService的tomcat线程数使用率过高",
+            "disable": false,
+            "description": "",
+            "creator": "019e861d0a5177b999cdddc7c7ae8834",
+            "gmt_create": "2026-08-14 14:33:16",
+            "gmt_create_timestamp": 1786689196000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 8468,
+            "business_id": 111092,
+            "name": "Warroom风险告警-老IOT-微服务NetEcoMedRouteService的tomcat线程数使用率过高",
+            "disable": false,
+            "description": "",
+            "creator": "019e861d0a5177b999cdddc7c7ae8834",
+            "gmt_create": "2026-08-14 14:30:55",
+            "gmt_create_timestamp": 1786689055000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 8467,
+            "business_id": 111092,
+            "name": "Warroom风险告警-老IOT-微服务DPSouthProxyServiceTomcat线程数使用率过高",
+            "disable": false,
+            "description": "",
+            "creator": "019e861d0a5177b999cdddc7c7ae8834",
+            "gmt_create": "2026-08-14 14:29:26",
+            "gmt_create_timestamp": 1786688966000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 8466,
+            "business_id": 111092,
+            "name": "Warroom风险告警-老IOT-微服务NetEcoPVMSDriverServiceTomcat线程数使用率过高",
+            "disable": false,
+            "description": "",
+            "creator": "019e861d0a5177b999cdddc7c7ae8834",
+            "gmt_create": "2026-08-14 14:27:52",
+            "gmt_create_timestamp": 1786688872000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 8458,
+            "business_id": 111092,
+            "name": "Warroom风险告警-模型管理-微服务Tomcat线程数使用率过高-16102_16103_4",
+            "disable": false,
+            "description": "",
+            "creator": "019e861d0a5177b999cdddc7c7ae8834",
+            "gmt_create": "2026-08-14 14:08:04",
+            "gmt_create_timestamp": 1786687684000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 8230,
+            "business_id": 111092,
+            "name": "Dmaas-Warroom风险告警-老IOT-微服务NetEcoMedRouteService的tomcat线程数使用率过高-1",
+            "disable": false,
+            "description": "",
+            "creator": "a65ddea3ae7e4e6996618a02082ee648",
+            "gmt_create": "2026-06-06 16:59:54",
+            "gmt_create_timestamp": 1780736394000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 7160,
+            "business_id": 111092,
+            "name": "Dmaas-Warroom风险告警-老IOT-微服务NetEcoMedRouteService的tomcat线程数使用率过高",
+            "disable": true,
+            "description": "Dmaas-Warroom风险告警-老IOT-微服务NetEcoMedRouteService的tomcat线程数使用率过高-16102_16103_134",
+            "creator": "0bf9796ab5e441c89352267c37c9999b",
+            "gmt_create": "2025-09-19 18:18:29",
+            "gmt_create_timestamp": 1758277109000,
+            "business_name": "dpframework",
+            "status": "STOPPED",
+            "from_recommend_template": false
+        },
+        {
+            "id": 7150,
+            "business_id": 111092,
+            "name": "Warroom风险告警-老IOT-微服务DPDispatcherService的tomcat线程数使用率过高-16103_132",
+            "disable": true,
+            "description": "",
+            "creator": "0bf9796ab5e441c89352267c37c9999b",
+            "gmt_create": "2025-09-19 17:46:16",
+            "gmt_create_timestamp": 1758275176000,
+            "business_name": "dpframework",
+            "status": "STOPPED",
+            "from_recommend_template": false
+        },
+        {
+            "id": 7042,
+            "business_id": 111092,
+            "name": "Warroom风险告警-老IOT-微服务DPBinMedServiceTomcat线程数使用率过高-16102_16103_13",
+            "disable": false,
+            "description": "",
+            "creator": "0bf9796ab5e441c89352267c37c9999b",
+            "gmt_create": "2025-09-13 16:21:58",
+            "gmt_create_timestamp": 1757751718000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        },
+        {
+            "id": 7033,
+            "business_id": 111092,
+            "name": "Warroom风险告警-微服务NetEcoPVMSDriverServiceTomcat线程数使用率过高-16103_133",
+            "disable": false,
+            "description": "",
+            "creator": "013df901eabc48d29bb226292983a2ea",
+            "gmt_create": "2025-09-13 15:22:27",
+            "gmt_create_timestamp": 1757748147000,
+            "business_name": "dpframework",
+            "status": "RUNNING",
+            "from_recommend_template": false
+        }
+    ],
+    "total_count": 13
+}
