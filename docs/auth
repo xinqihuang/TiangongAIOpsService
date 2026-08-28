@@ -1,0 +1,677 @@
+https://iam.cn-north-9.myhuaweicloud.com/v3/auth/tokens
+
+{
+ "auth": {
+  "identity": {
+   "methods": [
+    "password"
+   ],
+   "password": {
+    "user": {
+     "domain": {
+      "name": "hwstaff_perf_test"
+     },
+     "name": "huangxinqi",
+     "password": "DI<800Everyday"
+    }
+   }
+  },
+  "scope": {
+   "project": {
+    "name": "cn-north-9"
+   }
+  }
+ }
+}
+
+
+{
+ "token": {
+  "expires_at": "2026-08-29T07:08:10.982000Z",
+  "methods": [
+   "password"
+  ],
+  "catalog": [
+   {
+    "endpoints": [
+     {
+      "id": "090afc3f92ef44d7ae2f0d0ac489390b",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://as.cn-north-9.myhuaweicloud.com/autoscaling-api/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "9bea5676fcf746e7848346a92f235f12",
+    "name": "asv2",
+    "type": "asv2"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "ac24b87d56004594a66a51637ba0e052",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://evs.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "738e5be4122b47c3a114a7ee64a61e4b",
+    "name": "cinderv2",
+    "type": "volumev2"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "ecb03bc735bf48e691b7170e2d283c8f",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://vpc.cn-north-9.myhuaweicloud.com/v2.0/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "7bb2415854fb4af993e4e99a62d4d3cd",
+    "name": "vpcv2.0",
+    "type": "vpcv2.0"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "b4299bc50eaf443eb1928312361c7c77",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://elb.cn-north-9.myhuaweicloud.com"
+     }
+    ],
+    "id": "f1d345f8262940deaa45a5f2f03e2d36",
+    "name": "load-balancer",
+    "type": "octavia"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "73794891aa984c65bdaae558858e9838",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://bss-intl.myhuaweicloud.com/v2"
+     }
+    ],
+    "id": "b209755f86f54fdcaaa3f8541307872f",
+    "name": "bss-intlv2",
+    "type": "bss-intlv2"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "7161877e04244e34bc9f93e878d4c589",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://smn.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "229668a38aa24e8dbc546d4787e1c178",
+    "name": "SimpleMessageNotification",
+    "type": "smn"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "e57f1a950c0745948c5129157a6f4d5a",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://csbs.cn-north-9.myhuaweicloud.com/v1/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "30b07027740549a0b327641de52a3866",
+    "name": "karbor",
+    "type": "data-protect"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "8a77650fd84c42189dfea1df3f12271d",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://evs.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "7d9a95b7465d48729ae8b97a5ca52b2a",
+    "name": "evs",
+    "type": "evs"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "f9bcbe86c0cb4f628ff87ea8dc9a5fc1",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://evs.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "b6b6f04dbda343bc88f5b1b0bcc6cdf6",
+    "name": "cinder",
+    "type": "volume"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "6c91faa9890f40b397542561e3d87444",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://cbc.ap-southeast-1.myhuaweicloud.com/v1.0"
+     }
+    ],
+    "id": "ad7396ee0eea4281a180c4230641b72f",
+    "name": "bss-intlv1",
+    "type": "bss-intlv1"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "112d074a052341838abc3feafbaeb748",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://iam.myhuaweicloud.com/v3"
+     }
+    ],
+    "id": "1842ae22353d45a39a1eb89c22f0fe50",
+    "name": "keystone",
+    "type": "identity"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "fe9197d7aa9f436fad06d44b85318c72",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://as.cn-north-9.myhuaweicloud.com/autoscaling-api/v1/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "e13afbbb2269483a88f5c77d2b49e534",
+    "name": "asv1",
+    "type": "asv1"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "c22eeee6f8d34657a8d769f75c9a1d47",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://vpc.cn-north-9.myhuaweicloud.com"
+     }
+    ],
+    "id": "05d75f13079149d5ac4c4736209fb165",
+    "name": "neutron",
+    "type": "network"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "c8ca0531c3ad4e0985ee1cff3dd969a1",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://ecs.cn-north-9.myhuaweicloud.com/v1/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "bf06dededa8f47668c7a2665c5cc22c4",
+    "name": "ecs",
+    "type": "ecs"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "9df518cd61324eb785a9fc1b7b4e653e",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://evs.cn-north-9.myhuaweicloud.com/v2.1/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "068b3d3954804a058b3d6b00ffbc3f40",
+    "name": "evsv2.1",
+    "type": "evsv2.1"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "33e1cbdd86d34e89a63cf8ad16a5f49f",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://iam.myhuaweicloud.com/v3.0"
+     }
+    ],
+    "id": "100a6a3477f1495286579b819d399e36",
+    "name": "iam",
+    "type": "iam"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "932d1d2b5bde4718a56b74e10eba200c",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://ecs.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "73b219d830c244cf9f6cf22d4dadf7a7",
+    "name": "nova_legacy",
+    "type": "compute_legacy"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "6fb2795be9864eb5aef00d9bf49277ec",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://evs.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "a345f8e8ee534f09a5b8ddadeb056187",
+    "name": "cinderv3",
+    "type": "volumev3"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "8d27829bcbf449ffa5a6ab6d00de0ff4",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://ims.cn-north-9.myhuaweicloud.com"
+     }
+    ],
+    "id": "5fa4915f417646db88ef69e07756c4e6",
+    "name": "glance",
+    "type": "image"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "27d37217babe4cbcbed410c664bcd79b",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://dns.myhuaweicloud.com"
+     }
+    ],
+    "id": "17e8ce5e88d2427e96d566baeeb8ccc0",
+    "name": "",
+    "type": "dns"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "23e94bd1effc4ecb80d626b9c712f564",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://bss.myhuaweicloud.com/v2"
+     }
+    ],
+    "id": "5ef8a34a653d495cac0db4378e161521",
+    "name": "bssv2",
+    "type": "bssv2"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "33830aa436354fa99c59008cfba388ed",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://ces.cn-north-9.myhuaweicloud.com/V1.0/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "22f0f419457a4054bbb891e82262e204",
+    "name": "cesv1",
+    "type": "cesv1"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "0c4dc14aadd94ef29b28c7cbe5d7118b",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://vpc.cn-north-9.myhuaweicloud.com/v1/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "8e1e3dbb9eb845cea80db1880cb8b690",
+    "name": "vpc",
+    "type": "vpc"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "5236e92044dc46c0a05b3a5fdf595c54",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://ecs.cn-north-9.myhuaweicloud.com/v1.1/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "7fe482ce2fa5439a9defc18ee8b2f857",
+    "name": "ecsv1.1",
+    "type": "ecsv1.1"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "0f17d88aac2348e49669badf71c244b4",
+      "interface": "public",
+      "region": "cn-north-9",
+      "region_id": "cn-north-9",
+      "url": "https://ecs.cn-north-9.myhuaweicloud.com/v2/81679072734a4608ae65cd3940458c51"
+     }
+    ],
+    "id": "45d41ef7c0b04a65a3966cb756bed2a7",
+    "name": "nova",
+    "type": "compute"
+   },
+   {
+    "endpoints": [
+     {
+      "id": "29319cf2052d4e94bcf438b55d143832",
+      "interface": "public",
+      "region": "*",
+      "region_id": "*",
+      "url": "https://bss.myhuaweicloud.com/v1.0"
+     }
+    ],
+    "id": "c6db69fabbd549908adcb861c7e47ca4",
+    "name": "bssv1",
+    "type": "bssv1"
+   }
+  ],
+  "roles": [
+   {
+    "id": "0",
+    "name": "readonly"
+   },
+   {
+    "id": "0",
+    "name": "te_admin"
+   },
+   {
+    "id": "0",
+    "name": "elb_adm"
+   },
+   {
+    "id": "0",
+    "name": "sfs_adm"
+   },
+   {
+    "id": "0",
+    "name": "server_adm"
+   },
+   {
+    "id": "0",
+    "name": "swr_adm"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_csbs_rep_acceleration"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_diskAcc"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_dss_month"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_obs_deep_archive"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_cn-south-4c"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_dec_month_user"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_cbr_sellout"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_old_reource"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_evs_Royalty"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_welinkbridge_endpoint_buy"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_cbr_file"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_evs_ESingle_copySSD"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_dms-kafka3"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_obs_dec_month"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_csbs_restore"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_cbr_vmware"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_idme_mbm_foundation"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_cn-east-4d"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_multi_bind"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_evs_ssd_entry"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_smn_callnotify"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_ap-southeast-3d"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_csbs_progressbar"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ces_resourcegroup_tag"
+   },
+   {
+    "id": "0",
+    "name": "op_internal"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_koomap"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_dms-amqp-basic"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_evs_pool_ca"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_cn-southwest-2b"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_hwcph"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_offline_disk_4"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_smn_welinkred"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_hv_vendor"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_cn-north-4e"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_cn-north-4d"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_hecs_x"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_cbr_files_backup"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_ac7"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_csbs_restore_all"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_cn-north-4f"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_op_gated_roundtable"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_evs_ext"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_pfs_deep_archive"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_ap-southeast-1e"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_ru-moscow-1b"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_ap-southeast-1d"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_appstage"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_ap-southeast-1f"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_smn_application"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_evs_cold"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_gpu_g5r"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_op_gated_messageover5g"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ecs_ri"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_a_ru-northwest-2c"
+   },
+   {
+    "id": "0",
+    "name": "op_gated_ief_platinum"
+   },
+   {
+    "id": "8",
+    "name": "273,191,62,259,272,224,238,106,179,302,214,232,240,183,97,290,307,228,241,26,112,318,19,131,51,27,282,197,71,199,5,221,172,140,219,13,123,185,212,116,279,30,216,330,38,4,33,262,55,326,176,109,77,146,124,151,304,254,171,276,41,137,298,47,207,200,11,165,43,133,80,156,194,93,37,35,36,331,122,103,196,136,189,142,243,268,8,252,168,204,74,159,284,12,292,28,121,264,31,110,344,181,22,88,21,98,257,286,158,235,20,9,296,101,187,53,2,57,64,154,148,59,205,67,175,90,134,82,96,209,76,249"
+   },
+   {
+    "id": "9",
+    "name": "35,3,21,0"
+   },
+   {
+    "id": "7",
+    "name": "op_fine_grained"
+   }
+  ],
+  "project": {
+   "domain": {
+    "id": "fb05f078b7be4d47970834e82f078652",
+    "name": "hwstaff_perf_test"
+   },
+   "id": "81679072734a4608ae65cd3940458c51",
+   "name": "cn-north-9"
+  },
+  "issued_at": "2026-08-28T07:08:10.982000Z",
+  "user": {
+   "domain": {
+    "id": "fb05f078b7be4d47970834e82f078652",
+    "name": "hwstaff_perf_test"
+   },
+   "id": "544c7c618de24f0895c9ee1e3d74ae9b",
+   "name": "huangxinqi",
+   "password_expires_at": "2026-11-17T03:49:05.000000Z"
+  }
+ }
+}
